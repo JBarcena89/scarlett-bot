@@ -39,6 +39,29 @@ app.post('/chat', async (req, res) => {
   }
 });
 
+// Manejo de mensajes de Telegram
+app.post('/telegram-webhook', async (req, res) => {
+  const message = req.body.message;
+  if (!message || !message.text) return res.sendStatus(200);
+
+  const chatId = message.chat.id;
+  const userMessage = message.text;
+
+  const response = await generateResponse(userMessage); // Función de respuesta Scarlett
+  await sendTelegramMessage(chatId, response);
+
+  res.sendStatus(200);
+});
+
+async function sendTelegramMessage(chatId, text) {
+  await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text }),
+  });
+}
+
+
 app.listen(port, () => {
   console.log(`Scarlett está viva en el puerto ${port} 💖`);
 });
