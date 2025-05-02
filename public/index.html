@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Scarlett 💋</title>
+  <style>
+    body { font-family: sans-serif; background: #1b1b1b; color: white; text-align: center; padding: 2em; }
+    input, button { padding: 10px; font-size: 16px; }
+    #chat { max-width: 600px; margin: auto; text-align: left; background: #2c2c2c; padding: 1em; border-radius: 8px; }
+    .msg { margin: 10px 0; }
+    .typing { animation: blink 1s infinite; }
+    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    .links { margin-top: 1em; }
+    .links a { margin: 0 10px; color: #f96ca9; text-decoration: none; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Scarlett 💋 tu novia 24/7</h1>
+  <div id="chat"></div>
+  <input type="text" id="msg" placeholder="Escríbeme algo bebé...">
+  <button onclick="sendMsg()">Enviar</button>
+  <div class="links">
+    <a href="https://t.me/+YOUR_CHANNEL" target="_blank">💌 Telegram</a>
+    <a href="https://scarlett-exclusive.com" target="_blank">🔞 Contenido VIP</a>
+    <a href="https://www.instagram.com/scarlett" target="_blank">📸 Instagram</a>
+  </div>
+  <script>
+    const chat = document.getElementById('chat');
+    const msg = document.getElementById('msg');
+
+    function sendMsg() {
+      const text = msg.value;
+      if (!text) return;
+      chat.innerHTML += `<div class="msg"><b>Tú:</b> ${text}</div>`;
+      chat.innerHTML += `<div id="typing" class="msg typing">Scarlett está escribiendo<span class="typing">...</span></div>`;
+      msg.value = '';
+      
+      fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      })
+      .then(res => res.json())
+      .then(data => {
+        setTimeout(() => {
+          document.getElementById('typing').remove();
+          chat.innerHTML += `<div class="msg"><b>Scarlett:</b> ${data.reply}</div>`;
+        }, Math.random() * 2000 + 3000);
+      });
+    }
+
+    msg.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') sendMsg();
+    });
+  </script>
+</body>
+</html>
