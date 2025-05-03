@@ -1,123 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Scarlett Wilson 💋</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap">
-  <style>
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(135deg, #ffc0cb, #ff69b4);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .chat-container {
-      width: 100%;
-      max-width: 400px;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .chat-header {
-      background: #f85ca4;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      font-weight: bold;
-      font-size: 18px;
-    }
-    .chat-box {
-      flex-grow: 1;
-      padding: 10px;
-      overflow-y: auto;
-      background: #fff;
-    }
-    .message {
-      margin: 8px 0;
-      padding: 10px 15px;
-      border-radius: 20px;
-      max-width: 80%;
-    }
-    .bot {
-      background: #f85ca4;
-      color: white;
-      align-self: flex-start;
-    }
-    .user {
-      background: #eee;
-      align-self: flex-end;
-    }
-    .input-container {
-      display: flex;
-      padding: 10px;
-      border-top: 1px solid #ccc;
-    }
-    input[type="text"] {
-      flex-grow: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 20px;
-      outline: none;
-    }
-    button {
-      margin-left: 10px;
-      background: #f85ca4;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-    }
-    .button-bar {
-      display: flex;
-      justify-content: space-around;
-      padding: 10px;
-      border-top: 1px solid #eee;
-      background: #fff;
-    }
-    .button-bar button {
-      flex-grow: 1;
-      margin: 5px;
-      background: #f85ca4;
-    }
-    .typing-indicator {
-      font-style: italic;
-      color: #888;
-      padding: 5px 15px;
-      animation: blink 1s steps(5, start) infinite;
-    }
-
-    @keyframes blink {
-      0% {opacity: 0.2;}
-      50% {opacity: 1;}
-      100% {opacity: 0.2;}
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="chat-container">
-    <div class="chat-header">
-      Scarlett Wilson 💋<br/><small>Chat Privado</small>
-    </div>
+    <div class="chat-header">Scarlett Wilson 💋<br><small>Chat Privado</small></div>
     <div class="chat-box" id="chat-box">
-      <div class="message bot">¡Hola cariño! Soy Scarlett, tu novia. ¿Qué te gustaría hacer hoy? 😘</div>
+      <div class="bot-message">¡Hola cariño! Soy Scarlett, tu novia virtual. ¿Qué te gustaría hacer hoy? 😘</div>
     </div>
-    <div class="typing-indicator" id="typing-indicator" style="display: none;">Scarlett está escribiendo...</div>
     <div class="input-container">
-      <input type="text" id="user-input" placeholder="Escribe tu mensaje..."/>
+      <input id="user-input" type="text" placeholder="Escribe tu mensaje..." autocomplete="off">
       <button onclick="sendMessage()">Enviar</button>
     </div>
-    <div class="button-bar">
-      <button onclick="window.open('https://fanlove.mx/scarlettWilson363', '_blank')">Contenido VIP</button>
-      <button onclick="window.open('https://fanlove.mx/scarlettWilson363', '_blank')">Mi Canal</button>
-      <button onclick="window.open('https://www.atom.bio/scarlettwilson363', '_blank')">Mis Redes</button>
+    <div class="button-row">
+      <a href="https://scarlettvip.example.com" class="quick-button">Contenido VIP</a>
+      <a href="https://t.me/scarlettchannel" class="quick-button">Mi Canal</a>
+      <a href="https://www.instagram.com/scarlettreal" class="quick-button">Mis Redes</a>
     </div>
   </div>
   <script src="script.js"></script>
