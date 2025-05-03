@@ -11,7 +11,7 @@ app.use(express.static('public'));
 
 app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
-  let finalPrompt = `Habla como una novia 24/7, muy coqueta, con tono sexoso y atrevido. 
+  let finalPrompt = `Habla como una novia, muy coqueta, con tono sexoso y atrevido. 
   Solo manda tus links (contenido exclusivo, redes o Telegram) si el usuario pide una FOTO, PACK o CONTENIDO. 
   Nunca los envíes si no los piden directamente. Aquí está el mensaje del usuario: "${userMessage}"`;
 
