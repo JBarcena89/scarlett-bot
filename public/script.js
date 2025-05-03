@@ -1,34 +1,52 @@
+function appendMessage(text, className) {
+  const chatBox = document.getElementById('chat-box');
+  const message = document.createElement('div');
+  message.className = className;
+  message.textContent = text;
+  chatBox.appendChild(message);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function typingAnimation() {
+  const chatBox = document.getElementById('chat-box');
+  const typing = document.createElement('div');
+  typing.className = 'bot-message';
+  typing.textContent = 'Escribiendo';
+  chatBox.appendChild(typing);
+
+  let dots = 0;
+  const interval = setInterval(() => {
+    dots = (dots + 1) % 4;
+    typing.textContent = 'Escribiendo' + '.'.repeat(dots);
+  }, 500);
+
+  return { typing, interval };
+}
+
 async function sendMessage() {
   const input = document.getElementById('user-input');
-  const chatBox = document.getElementById('chat-box');
-  const typing = document.getElementById('typing-indicator');
+  const text = input.value.trim();
+  if (!text) return;
 
-  if (!input.value.trim()) return;
-
-  const userMsg = document.createElement('div');
-  userMsg.className = 'message user';
-  userMsg.innerText = input.value;
-  chatBox.appendChild(userMsg);
-
-  const userText = input.value;
+  appendMessage(text, 'user-message');
   input.value = '';
 
-  typing.style.display = 'block';
-  chatBox.scrollTop = chatBox.scrollHeight;
+  const { typing, interval } = typingAnimation();
 
-  const response = await fetch('/chat', {
+  await new Promise(resolve => setTimeout(resolve, 3000 + Math.random() * 2000));
+  clearInterval(interval);
+  typing.remove();
+
+  const res = await fetch('/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: userText })
+    body: JSON.stringify({ message: text })
   });
 
-  const result = await response.json();
-  setTimeout(() => {
-    typing.style.display = 'none';
-    const botMsg = document.createElement('div');
-    botMsg.className = 'message bot';
-    botMsg.innerHTML = result.response.replace(/\n/g, '<br/>');
-    chatBox.appendChild(botMsg);
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }, Math.floor(Math.random() * 2000) + 3000); // 3-5 segundos
+  const data = await res.json();
+  appendMessage(data.response, 'bot-message');
 }
+
+document.getElementById('user-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendMessage();
+});
