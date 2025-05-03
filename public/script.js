@@ -1,52 +1,50 @@
-function appendMessage(text, className) {
-  const chatBox = document.getElementById('chat-box');
-  const message = document.createElement('div');
-  message.className = className;
-  message.textContent = text;
-  chatBox.appendChild(message);
+const input = document.getElementById('user-input');
+const chatBox = document.getElementById('chat-box');
+const sendBtn = document.getElementById('send-btn');
+
+function appendMessage(sender, text) {
+  const msg = document.createElement('div');
+  msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  chatBox.appendChild(msg);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function typingAnimation() {
-  const chatBox = document.getElementById('chat-box');
+function showTyping() {
   const typing = document.createElement('div');
-  typing.className = 'bot-message';
-  typing.textContent = 'Escribiendo';
+  typing.classList.add('typing');
+  typing.id = 'typing';
+  typing.textContent = 'Scarlett está escribiendo...';
   chatBox.appendChild(typing);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-  let dots = 0;
-  const interval = setInterval(() => {
-    dots = (dots + 1) % 4;
-    typing.textContent = 'Escribiendo' + '.'.repeat(dots);
-  }, 500);
-
-  return { typing, interval };
+function removeTyping() {
+  const typing = document.getElementById('typing');
+  if (typing) typing.remove();
 }
 
 async function sendMessage() {
-  const input = document.getElementById('user-input');
-  const text = input.value.trim();
-  if (!text) return;
+  const userText = input.value.trim();
+  if (!userText) return;
 
-  appendMessage(text, 'user-message');
-  input.value = '';
-
-  const { typing, interval } = typingAnimation();
-
-  await new Promise(resolve => setTimeout(resolve, 3000 + Math.random() * 2000));
-  clearInterval(interval);
-  typing.remove();
+  appendMessage("Tú", userText);
+  input.value = "";
+  showTyping();
 
   const res = await fetch('/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: text })
+    body: JSON.stringify({ message: userText })
   });
 
   const data = await res.json();
-  appendMessage(data.response, 'bot-message');
+  setTimeout(() => {
+    removeTyping();
+    appendMessage("Scarlett", data.message);
+  }, Math.floor(Math.random() * 2000) + 3000);
 }
 
-document.getElementById('user-input').addEventListener('keydown', e => {
+sendBtn.addEventListener('click', sendMessage);
+input.addEventListener('keypress', e => {
   if (e.key === 'Enter') sendMessage();
 });
