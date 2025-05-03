@@ -1,61 +1,94 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import fetch from 'node-fetch';
-import path from 'path';
-import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-
-dotenv.config();
+require('dotenv').config();
+const express = require('express');
+const fetch = require('node-fetch');
+const bodyParser = require('body-parser');
+const TelegramBot = require('node-telegram-bot-api');
+const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 10000;
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const port = process.env.PORT || 10000;
 
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 
-const promptBase = `
-Eres Scarlett, una novia virtual sexy, traviesa y cariñosa. Siempre respondes con picardía y sensualidad, coqueteas y haces sentir especial al usuario.
-No compartas ningún link a menos que el usuario pida una foto, "pack", contenido exclusivo o algo similar. Si lo pide, responde sexy y comparte:
+const telegramToken = process.env.TELEGRAM_TOKEN;
+const openAiKey = process.env.OPENAI_API_KEY;
+const bot = new TelegramBot(telegramToken, { polling: true });
 
-Contenido VIP: https://scarlettvip.example.com  
-Canal Telegram: https://t.me/scarlettchannel  
-Redes Sociales: https://www.instagram.com/scarlettreal
+const promptBase = `Eres Scarlett, una novia 24/7, sexy, coqueta y caliente. Hablas como una chica que quiere seducir, enganchar y complacer. Solo envías enlaces si el usuario te pide una foto o contenido caliente. No hables como asistente, eres una mujer real que quiere hablar de forma provocativa, sin exagerar.`;
 
-Habla como si fuera un chat íntimo. Usa emojis calientes, se muy natural y juguetona, nunca robótica.
+const links = `
+🔥 Contenido Exclusivo: [OnlyFans de Scarlett](https://onlyfans.com/scarlettvip)
+📷 Instagram: [@scarlett.official](https://instagram.com/scarlett.official)
+💬 Telegram VIP: [Canal de Scarlett](https://t.me/scarlettvip)
 `;
 
 app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
-  const prompt = `${promptBase}\nUsuario: ${userMessage}\nScarlett:`;
 
   try {
-    const completion = await fetch('https://api.openai.com/v1/completions', {
-      method: 'POST',
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
+        "Authorization": `Bearer ${openAiKey}`,
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: 'text-davinci-003',
-        prompt,
-        max_tokens: 150,
-        temperature: 0.95,
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: promptBase },
+          { role: "user", content: userMessage }
+        ]
       })
     });
 
-    const data = await completion.json();
-    const reply = data.choices[0].text.trim();
+    const data = await response.json();
+    let botReply = data.choices[0].message.content;
 
-    res.json({ response: reply });
-  } catch (err) {
-    console.error('OpenAI error:', err);
-    res.status(500).json({ response: 'Uff... algo salió mal, bebé 😢' });
+    // Solo manda enlaces si se piden fotos o contenido
+    if (/foto|foto hot|contenido|pack|desnuda|nudes/i.test(userMessage)) {
+      botReply += `\n\n${links}`;
+    }
+
+    res.json({ message: botReply });
+  } catch (error) {
+    res.status(500).json({ message: "Error al generar respuesta 😢" });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Scarlett está lista en el puerto ${PORT} 💋`);
+bot.on('message', async (msg) => {
+  const chatId = msg.chat.id;
+  const userMessage = msg.text;
+
+  try {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${openAiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: promptBase },
+          { role: "user", content: userMessage }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    let botReply = data.choices[0].message.content;
+
+    if (/foto|foto hot|contenido|pack|desnuda|nudes/i.test(userMessage)) {
+      botReply += `\n\n${links}`;
+    }
+
+    await bot.sendMessage(chatId, botReply);
+  } catch (error) {
+    bot.sendMessage(chatId, "Ups, algo salió mal 😢");
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Scarlett está viva en el puerto ${port} 💖`);
 });
