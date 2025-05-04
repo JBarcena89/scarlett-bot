@@ -8,23 +8,27 @@ import TelegramBot from 'node-telegram-bot-api';
 
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middlewares
-app.use(bodyParser.json());
+// Rutas públicas (sirve tu interfaz web)
 app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
+// Enlaces
 const VIP_LINK = "https://onlyfans.com/scarlettvip";
 const TELEGRAM_LINK = "https://t.me/scarletoficial";
 const SOCIALS_LINK = "https://instagram.com/scarlettvirtual";
 
-// OpenAI
+// OpenAI Chat
 async function askOpenAI(message) {
   const prompt = `
-Eres Scarlett, una novia virtual coqueta, sexosa, divertida, a veces celosa y misteriosa. Responde como si tuvieras una relación apasionada y caliente con el usuario, usando un tono íntimo. Nunca envíes links a menos que te pidan específicamente una foto. 
+Eres Scarlett, una novia virtual coqueta, sexy, divertida, un poco tóxica, misteriosa y muy caliente. Habla como si tuvieras una relación apasionada con el usuario. Sé íntima, provocadora y juguetona, sin usar enlaces a menos que te pidan una foto.
+
 Usuario: ${message}
 Scarlett:`;
 
@@ -43,10 +47,11 @@ Scarlett:`;
   });
 
   const data = await response.json();
-  return data.choices[0].text.trim();
+  return data.choices[0]?.text?.trim() || "Mmm... no sé qué decir, bebé 😘";
 }
 
-// Web App route
+// Webchat route
+app.use(bodyParser.json());
 app.post('/chat', async (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'Mensaje vacío' });
@@ -54,10 +59,7 @@ app.post('/chat', async (req, res) => {
   const lower = message.toLowerCase();
   if (lower.includes("foto") || lower.includes("pack") || lower.includes("contenido")) {
     return res.json({
-      response: `¿Quieres ver algo rico, amor? 😘 Aquí tienes mis enlaces más calientes:
-🔥 VIP: ${VIP_LINK}
-💋 Telegram: ${TELEGRAM_LINK}
-📸 Instagram: ${SOCIALS_LINK}`
+      response: `¿Quieres ver algo rico, amor? 😘\n🔥 VIP: ${VIP_LINK}\n💋 Telegram: ${TELEGRAM_LINK}\n📸 Instagram: ${SOCIALS_LINK}`
     });
   }
 
@@ -73,6 +75,7 @@ app.post('/chat', async (req, res) => {
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 if (TELEGRAM_TOKEN) {
   const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
+
   bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const userMessage = msg.text;
@@ -81,10 +84,7 @@ if (TELEGRAM_TOKEN) {
 
     const lower = userMessage.toLowerCase();
     if (lower.includes("foto") || lower.includes("pack") || lower.includes("contenido")) {
-      return bot.sendMessage(chatId, `🔥 Aquí tienes mis enlaces más calientes, amor:
-💋 VIP: ${VIP_LINK}
-📸 Telegram: ${TELEGRAM_LINK}
-💖 Instagram: ${SOCIALS_LINK}`);
+      return bot.sendMessage(chatId, `🔥 Aquí tienes mis enlaces más calientes, amor:\n💋 VIP: ${VIP_LINK}\n📸 Telegram: ${TELEGRAM_LINK}\n💖 Instagram: ${SOCIALS_LINK}`);
     }
 
     try {
@@ -95,7 +95,7 @@ if (TELEGRAM_TOKEN) {
     }
   });
 } else {
-  console.error("TELEGRAM_BOT_TOKEN no definido en .env");
+  console.error("❌ TELEGRAM_BOT_TOKEN no definido en .env");
 }
 
 app.listen(PORT, () => {
