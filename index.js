@@ -21,7 +21,7 @@ const VIP_LINK = "https://onlyfans.com/scarlettvip";
 const TELEGRAM_LINK = "https://t.me/scarletoficial";
 const SOCIALS_LINK = "https://instagram.com/scarlettvirtual";
 
-// Nueva función con gpt-3.5-turbo
+// OpenAI GPT-3.5 Turbo
 async function askOpenAI(message) {
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -60,7 +60,7 @@ async function askOpenAI(message) {
   }
 }
 
-// Webchat
+// Webchat endpoint
 app.post('/chat', async (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'Mensaje vacío' });
@@ -80,10 +80,18 @@ app.post('/chat', async (req, res) => {
   }
 });
 
-// Telegram bot
+// Telegram con Webhook
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-if (TELEGRAM_TOKEN) {
-  const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
+const DOMAIN = process.env.DOMAIN; // Asegúrate de que esto esté en .env
+
+if (TELEGRAM_TOKEN && DOMAIN) {
+  const bot = new TelegramBot(TELEGRAM_TOKEN);
+  bot.setWebHook(`${DOMAIN}/bot${TELEGRAM_TOKEN}`);
+
+  app.post(`/bot${TELEGRAM_TOKEN}`, (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+  });
 
   bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
@@ -105,10 +113,10 @@ if (TELEGRAM_TOKEN) {
     }
   });
 } else {
-  console.error("TELEGRAM_BOT_TOKEN no definido en .env");
+  console.error("TELEGRAM_BOT_TOKEN o DOMAIN no definidos en .env");
 }
 
-// Start server
+// Inicia servidor
 app.listen(PORT, () => {
   console.log(`Scarlett está viva en el puerto ${PORT} 💖`);
 });
