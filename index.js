@@ -118,3 +118,62 @@ if (TELEGRAM_TOKEN && DOMAIN) {
 app.listen(PORT, () => {
   console.log(`Scarlett está viva en el puerto ${PORT} 💖`);
 });
+
+// Facebook Messenger Webhook (Verificación)
+app.get('/webhook', (req, res) => {
+  const VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN;
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+
+  if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+    console.log('✅ Webhook verificado por Facebook');
+    res.status(200).send(challenge);
+  } else {
+    res.sendStatus(403);
+  }
+});
+
+// Recibir mensajes de Messenger
+app.post('/webhook', async (req, res) => {
+  const body = req.body;
+
+  if (body.object === 'page') {
+    for (const entry of body.entry) {
+      for (const event of entry.messaging) {
+        const senderId = event.sender.id;
+        const userMessage = event.message?.text;
+        if (!userMessage) continue;
+
+        const lower = userMessage.toLowerCase();
+        if (lower.includes("foto") || lower.includes("contenido")) {
+          return sendMessengerMessage(senderId,
+            `🔥 Aquí tienes mis enlaces más calientes, amor:\n💋 VIP: ${VIP_LINK}\n📸 Telegram: ${TELEGRAM_LINK}\n💖 Instagram: ${SOCIALS_LINK}`
+          );
+        }
+
+        await sendMessengerMessage(senderId, "Scarlett está escribiendo... 💋");
+        const reply = await askOpenAI(senderId, userMessage);
+        setTimeout(() => sendMessengerMessage(senderId, reply), 5000);
+      }
+    }
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(404);
+  }
+});
+
+// Enviar mensaje a Messenger
+async function sendMessengerMessage(recipientId, text) {
+  const PAGE_TOKEN = process.env.FB_PAGE_TOKEN;
+
+  await fetch(`https://graph.facebook.com/v18.0/me/messages?access_token=${PAGE_TOKEN}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messaging_type: "RESPONSE",
+      recipient: { id: recipientId },
+      message: { text }
+    })
+  });
+}
