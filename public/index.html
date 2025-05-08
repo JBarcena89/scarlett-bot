@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scarlett 💋 Chat</title>
+  <title>Scarlett 💋</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="form-container">
-    <h2>Bienvenido al chat de Scarlett 💋</h2>
+    <h2>💖 Bienvenido al chat de Scarlett 💖</h2>
     <form id="login-form">
       <input type="text" id="name" placeholder="Tu nombre" required />
       <input type="email" id="email" placeholder="Tu correo" required />
@@ -16,18 +16,18 @@
     </form>
   </div>
 
-  <div id="chat-container" style="display: none;">
-    <div id="chat-box" class="glass-effect"></div>
-
+  <div id="chat-container" style="display:none;">
+    <div id="chat-header">Scarlett 💋</div>
+    <div id="chat-box"></div>
     <form id="chat-form">
-      <input type="text" id="message-input" placeholder="Escríbeme algo sexy..." autocomplete="off" required />
-      <button type="submit">Enviar</button>
+      <input type="text" id="message-input" placeholder="Escribe algo sexy..." autocomplete="off" required />
+      <button type="submit">💌</button>
     </form>
 
-    <div id="chat-actions">
-      <button id="btn-vip">💎 Contenido VIP</button>
-      <button id="btn-telegram">📣 Mi Canal</button>
-      <button id="btn-socials">📱 Mis Redes</button>
+    <div id="quick-buttons">
+      <button onclick="sendQuick('contenido')">Contenido VIP 🔥</button>
+      <button onclick="sendQuick('canal')">Mi Canal 💋</button>
+      <button onclick="sendQuick('redes')">Mis Redes 📸</button>
     </div>
   </div>
 
