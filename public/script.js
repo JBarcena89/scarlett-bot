@@ -87,9 +87,9 @@ function showActions() {
   const actions = document.createElement("div");
   actions.id = "chat-actions";
   actions.innerHTML = `
-    <button onclick="window.open('https://onlyfans.com/scarlettvip', '_blank')">Contenido VIP 💎</button>
+    <button onclick="window.open('https://fanlove.mx/scarlettWilson363', '_blank')">Contenido VIP 💎</button>
     <button onclick="window.open('https://t.me/scarletoficial', '_blank')">Mi Canal 💌</button>
-    <button onclick="window.open('https://instagram.com/scarlettvirtual', '_blank')">Mis Redes 📸</button>
+    <button onclick="window.open('https://www.atom.bio/scarlettwilson363', '_blank')">Mis Redes 📸</button>
   `;
   container.appendChild(actions);
 }
