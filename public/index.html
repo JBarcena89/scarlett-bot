@@ -1,1 +1,111 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Scarlett 💋 Tu Novia Virtual</title><link rel="stylesheet" href="style.css"/></head><body><div class="chat-container"><div class="chat-header"><h2>Scarlett Wilson 💋</h2><p>Chat Privado</p></div><div id="chat-box"><div class="scarlett-message">¡Hola cariño! Soy Scarlett, tu novia virtual. ¿Qué te gustaría hacer hoy? 😘</div></div><form id="chat-form"><input type="text" id="user-input" placeholder="Escribe tu mensaje..." required /><button type="submit">Enviar</button></form><div class="buttons"><a href="https://onlyfans.com/scarlettvip" target="_blank">Contenido VIP</a><a href="https://t.me/scarletoficial" target="_blank">Mi Canal</a><a href="https://instagram.com/scarlettvirtual" target="_blank">Mis Redes</a></div></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scarlett 💋 Chat</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="form-container">
+    <h2>Bienvenido al chat de Scarlett 💋</h2>
+    <form id="login-form">
+      <input type="text" id="name" placeholder="Tu nombre" required />
+      <input type="email" id="email" placeholder="Tu correo" required />
+      <button type="submit">Entrar al chat</button>
+    </form>
+  </div>
+
+  <div id="chat-container" style="display:none;">
+    <div id="chat-box"></div>
+    <form id="chat-form">
+      <input type="text" id="message-input" placeholder="Escribe algo sexy..." autocomplete="off" required />
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
+
+  <script>
+    let userId = "";
+
+    document.getElementById("login-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      userId = `${email}-${name}`;
+
+      document.getElementById("form-container").style.display = "none";
+      document.getElementById("chat-container").style.display = "block";
+      addMessage("Scarlett", `Hola mi amor ${name} 💋 ¿En qué puedo complacerte hoy?`);
+    });
+
+    document.getElementById("chat-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = document.getElementById("message-input");
+      const message = input.value.trim();
+      if (!message) return;
+
+      addMessage("Tú", message);
+      input.value = "";
+
+      addTyping();
+
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message, userId })
+        });
+
+        const data = await res.json();
+
+        if (data.typing) {
+          // Esperamos la segunda respuesta del servidor
+          const replyRes = await new Promise(resolve =>
+            setTimeout(async () => {
+              const r = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message, userId })
+              });
+              resolve(r.json());
+            }, 5000)
+          );
+
+          removeTyping();
+          addMessage("Scarlett", replyRes.response);
+        } else {
+          removeTyping();
+          addMessage("Scarlett", data.response);
+        }
+      } catch (err) {
+        removeTyping();
+        addMessage("Scarlett", "Ups... no puedo responder ahora 😢");
+      }
+    });
+
+    function addMessage(sender, text) {
+      const chatBox = document.getElementById("chat-box");
+      const msg = document.createElement("div");
+      msg.className = "message";
+      msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function addTyping() {
+      const chatBox = document.getElementById("chat-box");
+      const typing = document.createElement("div");
+      typing.id = "typing";
+      typing.className = "message";
+      typing.innerHTML = `<em>Scarlett está escribiendo...</em>`;
+      chatBox.appendChild(typing);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function removeTyping() {
+      const typing = document.getElementById("typing");
+      if (typing) typing.remove();
+    }
+  </script>
+</body>
+</html>
