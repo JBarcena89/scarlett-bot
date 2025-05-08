@@ -1,82 +1,94 @@
-const formContainer = document.getElementById('form-container');
-const chatContainer = document.getElementById('chat-container');
-const nameInput = document.getElementById('name');
-const emailInput = document.getElementById('email');
-const registerBtn = document.getElementById('register-btn');
-const chatBox = document.getElementById('chat-box');
-const messageInput = document.getElementById('message-input');
-const sendBtn = document.getElementById('send-btn');
+let userId = "";
+let userName = "";
 
-let user = {
-  name: localStorage.getItem('name') || '',
-  email: localStorage.getItem('email') || ''
-};
+// Al enviar el formulario inicial
+document.getElementById("login-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  userId = `${email}-${name}`;
+  userName = name;
 
-// Mostrar formulario si no hay datos guardados
-if (!user.name || !user.email) {
-  formContainer.style.display = 'block';
-  chatContainer.style.display = 'none';
-} else {
-  formContainer.style.display = 'none';
-  chatContainer.style.display = 'block';
-}
+  document.getElementById("form-container").style.display = "none";
+  document.getElementById("chat-container").style.display = "flex";
 
-// Guardar nombre y correo
-registerBtn.addEventListener('click', () => {
-  const name = nameInput.value.trim();
-  const email = emailInput.value.trim();
-
-  if (name && email) {
-    localStorage.setItem('name', name);
-    localStorage.setItem('email', email);
-    user = { name, email };
-    formContainer.style.display = 'none';
-    chatContainer.style.display = 'block';
-  } else {
-    alert('Por favor, ingresa tu nombre y correo 💖');
-  }
+  addMessage("Scarlett", `Hola mi amor ${name} 💋 ¿En qué puedo complacerte hoy?`, "scarlett");
 });
 
-// Enviar mensaje
-sendBtn.addEventListener('click', async () => {
-  const message = messageInput.value.trim();
+// Al enviar un mensaje del chat
+document.getElementById("chat-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const input = document.getElementById("message-input");
+  const message = input.value.trim();
   if (!message) return;
 
-  appendMessage(user.name, message);
-  messageInput.value = '';
-
-  // Mostrar que Scarlett está escribiendo
-  const typingMsg = document.createElement('div');
-  typingMsg.classList.add('message');
-  typingMsg.innerHTML = `<strong>Scarlett:</strong> <em>escribiendo...</em>`;
-  chatBox.appendChild(typingMsg);
-  chatBox.scrollTop = chatBox.scrollHeight;
-
-  // Espera 5 segundos
-  await new Promise(resolve => setTimeout(resolve, 5000));
+  addMessage("Tú", message, "user");
+  input.value = "";
+  addTyping();
 
   try {
-    const response = await fetch('/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ message })
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, userId })
     });
 
-    const data = await response.json();
-    chatBox.removeChild(typingMsg);
-    appendMessage('Scarlett', data.response);
+    const data = await res.json();
+
+    if (data.typing) {
+      setTimeout(async () => {
+        const replyRes = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message, userId })
+        });
+        const final = await replyRes.json();
+        removeTyping();
+        addMessage("Scarlett", final.response, "scarlett");
+      }, 5000);
+    } else {
+      removeTyping();
+      addMessage("Scarlett", data.response, "scarlett");
+    }
   } catch (err) {
-    chatBox.removeChild(typingMsg);
-    appendMessage('Scarlett', "Ups... no pude responderte, bebé 😢");
+    removeTyping();
+    addMessage("Scarlett", "Ups... no puedo responder ahora 😢", "scarlett");
   }
 });
 
-function appendMessage(sender, text) {
-  const msgDiv = document.createElement('div');
-  msgDiv.classList.add('message');
-  msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
-  chatBox.appendChild(msgDiv);
+function addMessage(sender, text, type) {
+  const chatBox = document.getElementById("chat-box");
+  const msg = document.createElement("div");
+  msg.className = `message ${type}`;
+  msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  chatBox.appendChild(msg);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+function addTyping() {
+  const chatBox = document.getElementById("chat-box");
+  const typing = document.createElement("div");
+  typing.id = "typing";
+  typing.className = "message scarlett";
+  typing.innerHTML = `<em>Scarlett está escribiendo...</em>`;
+  chatBox.appendChild(typing);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function removeTyping() {
+  const typing = document.getElementById("typing");
+  if (typing) typing.remove();
+}
+
+// Acciones para los botones fijos inferiores
+document.getElementById("btn-vip").addEventListener("click", () => {
+  addMessage("Scarlett", `🔥 Mi contenido más íntimo está aquí amor: <a href="https://onlyfans.com/scarlettvip" target="_blank">VIP 🔥</a>`, "scarlett");
+});
+
+document.getElementById("btn-telegram").addEventListener("click", () => {
+  addMessage("Scarlett", `💋 Únete a mi canal exclusivo en Telegram: <a href="https://t.me/scarletoficial" target="_blank">Mi Canal 💋</a>`, "scarlett");
+});
+
+document.getElementById("btn-socials").addEventListener("click", () => {
+  addMessage("Scarlett", `📸 Sígueme en todas mis redes, amor: <a href="https://instagram.com/scarlettvirtual" target="_blank">Instagram 📸</a>`, "scarlett");
+});
