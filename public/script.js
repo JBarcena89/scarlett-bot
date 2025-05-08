@@ -1,1 +1,82 @@
-const form = document.getElementById("chat-form"); const input = document.getElementById("user-input"); const chatBox = document.getElementById("chat-box"); function appendMessage(text, className) { const msg = document.createElement("div"); msg.className = className; msg.textContent = text; chatBox.appendChild(msg); chatBox.scrollTop = chatBox.scrollHeight; } form.addEventListener("submit", async (e) => { e.preventDefault(); const message = input.value.trim(); if (!message) return; appendMessage(message, "user-message"); input.value = ""; const typing = document.createElement("div"); typing.className = "scarlett-message"; typing.textContent = "Scarlett está escribiendo"; chatBox.appendChild(typing); let dots = 0; const interval = setInterval(() => { dots = (dots + 1) % 4; typing.textContent = "Scarlett está escribiendo" + ".".repeat(dots); }, 500); try { const res = await fetch("/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message }), }); const data = await res.json(); clearInterval(interval); chatBox.removeChild(typing); appendMessage(data.response, "scarlett-message"); } catch (err) { clearInterval(interval); chatBox.removeChild(typing); appendMessage("Ups... no puedo responder ahora bebé 😢", "scarlett-message"); } });
+const formContainer = document.getElementById('form-container');
+const chatContainer = document.getElementById('chat-container');
+const nameInput = document.getElementById('name');
+const emailInput = document.getElementById('email');
+const registerBtn = document.getElementById('register-btn');
+const chatBox = document.getElementById('chat-box');
+const messageInput = document.getElementById('message-input');
+const sendBtn = document.getElementById('send-btn');
+
+let user = {
+  name: localStorage.getItem('name') || '',
+  email: localStorage.getItem('email') || ''
+};
+
+// Mostrar formulario si no hay datos guardados
+if (!user.name || !user.email) {
+  formContainer.style.display = 'block';
+  chatContainer.style.display = 'none';
+} else {
+  formContainer.style.display = 'none';
+  chatContainer.style.display = 'block';
+}
+
+// Guardar nombre y correo
+registerBtn.addEventListener('click', () => {
+  const name = nameInput.value.trim();
+  const email = emailInput.value.trim();
+
+  if (name && email) {
+    localStorage.setItem('name', name);
+    localStorage.setItem('email', email);
+    user = { name, email };
+    formContainer.style.display = 'none';
+    chatContainer.style.display = 'block';
+  } else {
+    alert('Por favor, ingresa tu nombre y correo 💖');
+  }
+});
+
+// Enviar mensaje
+sendBtn.addEventListener('click', async () => {
+  const message = messageInput.value.trim();
+  if (!message) return;
+
+  appendMessage(user.name, message);
+  messageInput.value = '';
+
+  // Mostrar que Scarlett está escribiendo
+  const typingMsg = document.createElement('div');
+  typingMsg.classList.add('message');
+  typingMsg.innerHTML = `<strong>Scarlett:</strong> <em>escribiendo...</em>`;
+  chatBox.appendChild(typingMsg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  // Espera 5 segundos
+  await new Promise(resolve => setTimeout(resolve, 5000));
+
+  try {
+    const response = await fetch('/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ message })
+    });
+
+    const data = await response.json();
+    chatBox.removeChild(typingMsg);
+    appendMessage('Scarlett', data.response);
+  } catch (err) {
+    chatBox.removeChild(typingMsg);
+    appendMessage('Scarlett', "Ups... no pude responderte, bebé 😢");
+  }
+});
+
+function appendMessage(sender, text) {
+  const msgDiv = document.createElement('div');
+  msgDiv.classList.add('message');
+  msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  chatBox.appendChild(msgDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
