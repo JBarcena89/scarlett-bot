@@ -3,31 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scarlett Wilson 💋 Chat</title>
+  <title>Scarlett 💋 Chat</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="chat-wrapper">
-    <div class="chat-header">
-      <h2>Scarlett Wilson 💋</h2>
-      <p>Chat Privado</p>
-    </div>
+  <div id="form-container">
+    <h2>Bienvenido al chat de Scarlett 💋</h2>
+    <form id="login-form">
+      <input type="text" id="name" placeholder="Tu nombre" required />
+      <input type="email" id="email" placeholder="Tu correo" required />
+      <button type="submit">Entrar al chat</button>
+    </form>
+  </div>
 
-    <div id="chat-box" class="chat-box">
-      <div class="message scarlett">
-        ¡Hola cariño! Soy Scarlett, tu novia virtual. ¿Qué te gustaría hacer hoy? 😘
-      </div>
-    </div>
+  <div id="chat-container" style="display: none;">
+    <div id="chat-box" class="glass-effect"></div>
 
-    <form id="chat-form" class="chat-form">
-      <input type="text" id="message-input" placeholder="Escribe tu mensaje..." autocomplete="off" required />
+    <form id="chat-form">
+      <input type="text" id="message-input" placeholder="Escríbeme algo sexy..." autocomplete="off" required />
       <button type="submit">Enviar</button>
     </form>
 
-    <div class="chat-buttons">
-      <button onclick="sendQuick('contenido')">Contenido VIP</button>
-      <button onclick="sendQuick('canal')">Mi Canal</button>
-      <button onclick="sendQuick('redes')">Mis Redes</button>
+    <div id="chat-actions">
+      <button id="btn-vip">💎 Contenido VIP</button>
+      <button id="btn-telegram">📣 Mi Canal</button>
+      <button id="btn-socials">📱 Mis Redes</button>
     </div>
   </div>
 
