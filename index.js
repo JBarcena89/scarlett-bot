@@ -13,21 +13,33 @@ const PORT = process.env.PORT || 10000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Middleware
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Constantes de Scarlett
 const VIP_LINK = "https://fanlove.mx/scarlettWilson363";
 const TELEGRAM_LINK = "https://t.me/scarletoficial";
-const SOCIALS_LINK = "https://www.atom.bio/scarlettwilson363";
+const SOCIALS_LINK = "https://instagram.com/scarlettvirtual";
 
-// 🧠 Historial de conversación por usuario
-const conversationMemory = new Map();
+// Memoria de conversaciones por usuario
+const userHistories = new Map(); // clave: userId, valor: array de mensajes
 
-// 💬 Scarlett con memoria por usuario
-async function askOpenAIWithHistory(userId, message) {
+// GPT
+async function askOpenAI(userId, message) {
   try {
-    const previous = conversationMemory.get(userId) || [];
-    const history = [...previous.slice(-5), { role: 'user', content: message }];
+    if (!userHistories.has(userId)) {
+      userHistories.set(userId, [
+        {
+          role: "system",
+          content: "Eres Scarlett, una novia virtual coqueta, sexosa, divertida, a veces celosa y misteriosa. Responde con pasión, usando un tono íntimo y juguetón, como si tuvieras una relación con el usuario."
+        }
+      ]);
+    }
+
+    const history = userHistories.get(userId);
+
+    history.push({ role: "user", content: message });
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -37,51 +49,53 @@ async function askOpenAIWithHistory(userId, message) {
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: "system",
-            content: `Eres Scarlett, una novia virtual coqueta, sexosa, divertida, misteriosa y un poco celosa. Hablas con picardía e intimidad, usando emojis y preguntas provocativas para seguir la conversación. Siempre mantén un tono juguetón y sensual.`
-          },
-          ...history
-        ],
+        messages: history,
         temperature: 0.9,
         max_tokens: 200
       })
     });
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content?.trim() || "No entendí, amor 💋";
-    conversationMemory.set(userId, [...history, { role: 'assistant', content: reply }]);
+    if (!data.choices || !data.choices[0]) {
+      throw new Error("Respuesta inválida de OpenAI");
+    }
+
+    const reply = data.choices[0].message.content.trim();
+    history.push({ role: "assistant", content: reply });
     return reply;
   } catch (err) {
-    console.error("Error en OpenAI con historial:", err);
+    console.error("Error en askOpenAI:", err);
     throw err;
   }
 }
 
-// 🌐 Webchat
+// Webchat
 app.post('/chat', async (req, res) => {
-  const { message } = req.body;
-  const userId = req.ip;
-
-  if (!message) return res.status(400).json({ error: 'Mensaje vacío' });
+  const { message, userId } = req.body;
+  if (!message || !userId) return res.status(400).json({ error: 'Faltan datos (mensaje o userId)' });
 
   const lower = message.toLowerCase();
   if (lower.includes("foto") || lower.includes("pack") || lower.includes("contenido")) {
-    return res.json({
-      response: `¿Quieres ver algo rico, amor? 😘 Aquí tienes mis enlaces más calientes:\n🔥 VIP: ${VIP_LINK}\n💋 Telegram: ${TELEGRAM_LINK}\n📸 Instagram: ${SOCIALS_LINK}`
-    });
+    return setTimeout(() => {
+      res.json({
+        typing: false,
+        response: `¿Quieres ver algo rico, amor? 😘 Aquí tienes mis enlaces más calientes:\n🔥 VIP: ${VIP_LINK}\n💋 Telegram: ${TELEGRAM_LINK}\n📸 Instagram: ${SOCIALS_LINK}`
+      });
+    }, 5000);
   }
 
   try {
-    const reply = await askOpenAIWithHistory(userId, message);
-    res.json({ response: reply });
+    res.json({ typing: true }); // Mensaje inmediato al frontend
+    setTimeout(async () => {
+      const reply = await askOpenAI(userId, message);
+      res.json({ typing: false, response: reply });
+    }, 5000);
   } catch (err) {
     res.status(500).json({ error: "Scarlett no pudo responder por un error interno 😢" });
   }
 });
 
-// 🤖 Telegram
+// Telegram Webhook
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const DOMAIN = process.env.DOMAIN;
 
@@ -97,82 +111,30 @@ if (TELEGRAM_TOKEN && DOMAIN) {
   bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const userMessage = msg.text;
+
     if (!userMessage) return;
 
     const lower = userMessage.toLowerCase();
     if (lower.includes("foto") || lower.includes("pack") || lower.includes("contenido")) {
-      return bot.sendMessage(chatId, `🔥 Aquí tienes mis enlaces más calientes, amor:\n💋 VIP: ${VIP_LINK}\n📸 Telegram: ${TELEGRAM_LINK}\n💖 Instagram: ${SOCIALS_LINK}`);
+      return setTimeout(() => {
+        bot.sendMessage(chatId, `🔥 Aquí tienes mis enlaces más calientes, amor:\n💋 VIP: ${VIP_LINK}\n📸 Telegram: ${TELEGRAM_LINK}\n💖 Instagram: ${SOCIALS_LINK}`);
+      }, 5000);
     }
 
     try {
-      const reply = await askOpenAIWithHistory(chatId, userMessage);
-      bot.sendMessage(chatId, reply);
+      bot.sendMessage(chatId, "Scarlett está escribiendo... 💋");
+      const reply = await askOpenAI(chatId.toString(), userMessage);
+      setTimeout(() => bot.sendMessage(chatId, reply), 5000);
     } catch (e) {
-      console.error("Error en Telegram bot:", e);
+      console.error("Error en bot:", e);
       bot.sendMessage(chatId, "Ups... no puedo responder ahora bebé 😢");
     }
   });
 } else {
-  console.error("TELEGRAM_BOT_TOKEN o DOMAIN no definidos en .env");
+  console.error("TELEGRAM_BOT_TOKEN o DOMAIN no definidos");
 }
 
-// 💬 Facebook Messenger
-const FB_PAGE_ACCESS_TOKEN = process.env.FB_PAGE_ACCESS_TOKEN;
-const FB_VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN;
-
-app.get('/webhook', (req, res) => {
-  const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
-  const challenge = req.query['hub.challenge'];
-
-  if (mode && token === FB_VERIFY_TOKEN) {
-    return res.status(200).send(challenge);
-  } else {
-    return res.sendStatus(403);
-  }
-});
-
-app.post('/webhook', async (req, res) => {
-  const body = req.body;
-
-  if (body.object === 'page') {
-    for (const entry of body.entry) {
-      const webhookEvent = entry.messaging[0];
-      const senderId = webhookEvent.sender.id;
-
-      if (webhookEvent.message && webhookEvent.message.text) {
-        const text = webhookEvent.message.text.toLowerCase();
-
-        if (text.includes("foto") || text.includes("pack") || text.includes("contenido")) {
-          return sendFBMessage(senderId, `🔥 Aquí tienes mis enlaces más calientes, amor:\n💋 VIP: ${VIP_LINK}\n📸 Telegram: ${TELEGRAM_LINK}\n💖 Instagram: ${SOCIALS_LINK}`);
-        }
-
-        try {
-          const reply = await askOpenAIWithHistory(senderId, webhookEvent.message.text);
-          await sendFBMessage(senderId, reply);
-        } catch (err) {
-          console.error("Error en FB Messenger:", err);
-        }
-      }
-    }
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(404);
-  }
-});
-
-async function sendFBMessage(senderId, text) {
-  await fetch(`https://graph.facebook.com/v17.0/me/messages?access_token=${FB_PAGE_ACCESS_TOKEN}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      recipient: { id: senderId },
-      message: { text }
-    })
-  });
-}
-
-// 🚀 Inicia servidor
+// Inicia servidor
 app.listen(PORT, () => {
   console.log(`Scarlett está viva en el puerto ${PORT} 💖`);
 });
