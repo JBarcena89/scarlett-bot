@@ -13,19 +13,15 @@ const PORT = process.env.PORT || 10000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Middleware
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Constantes de Scarlett
-const VIP_LINK = "https://fanlove.mx/scarlettWilson363";
+const VIP_LINK = "https://onlyfans.com/scarlettvip";
 const TELEGRAM_LINK = "https://t.me/scarletoficial";
-const SOCIALS_LINK = "https://www.atom.bio/scarlettwilson363";
+const SOCIALS_LINK = "https://instagram.com/scarlettvirtual";
 
-// Memoria de conversaciones por usuario
-const userHistories = new Map(); // clave: userId, valor: array de mensajes
+const userHistories = new Map();
 
-// GPT
 async function askOpenAI(userId, message) {
   try {
     if (!userHistories.has(userId)) {
@@ -38,7 +34,6 @@ async function askOpenAI(userId, message) {
     }
 
     const history = userHistories.get(userId);
-
     history.push({ role: "user", content: message });
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -56,20 +51,17 @@ async function askOpenAI(userId, message) {
     });
 
     const data = await response.json();
-    if (!data.choices || !data.choices[0]) {
-      throw new Error("Respuesta inválida de OpenAI");
-    }
+    const reply = data.choices?.[0]?.message?.content?.trim();
+    if (!reply) throw new Error("Respuesta inválida de OpenAI");
 
-    const reply = data.choices[0].message.content.trim();
     history.push({ role: "assistant", content: reply });
     return reply;
   } catch (err) {
     console.error("Error en askOpenAI:", err);
-    throw err;
+    return "Ups... no puedo responder ahora, amor 💔";
   }
 }
 
-// Webchat
 app.post('/chat', async (req, res) => {
   const { message, userId } = req.body;
   if (!message || !userId) return res.status(400).json({ error: 'Faltan datos (mensaje o userId)' });
@@ -84,18 +76,13 @@ app.post('/chat', async (req, res) => {
     }, 5000);
   }
 
-  try {
-    res.json({ typing: true }); // Mensaje inmediato al frontend
-    setTimeout(async () => {
-      const reply = await askOpenAI(userId, message);
-      res.json({ typing: false, response: reply });
-    }, 5000);
-  } catch (err) {
-    res.status(500).json({ error: "Scarlett no pudo responder por un error interno 😢" });
-  }
+  setTimeout(async () => {
+    const reply = await askOpenAI(userId, message);
+    res.json({ typing: false, response: reply });
+  }, 5000);
 });
 
-// Telegram Webhook
+// Telegram
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const DOMAIN = process.env.DOMAIN;
 
@@ -111,7 +98,6 @@ if (TELEGRAM_TOKEN && DOMAIN) {
   bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const userMessage = msg.text;
-
     if (!userMessage) return;
 
     const lower = userMessage.toLowerCase();
@@ -121,20 +107,14 @@ if (TELEGRAM_TOKEN && DOMAIN) {
       }, 5000);
     }
 
-    try {
-      bot.sendMessage(chatId, "Scarlett está escribiendo... 💋");
-      const reply = await askOpenAI(chatId.toString(), userMessage);
-      setTimeout(() => bot.sendMessage(chatId, reply), 5000);
-    } catch (e) {
-      console.error("Error en bot:", e);
-      bot.sendMessage(chatId, "Ups... no puedo responder ahora bebé 😢");
-    }
+    bot.sendMessage(chatId, "Scarlett está escribiendo... 💋");
+    const reply = await askOpenAI(chatId.toString(), userMessage);
+    setTimeout(() => bot.sendMessage(chatId, reply), 5000);
   });
 } else {
   console.error("TELEGRAM_BOT_TOKEN o DOMAIN no definidos");
 }
 
-// Inicia servidor
 app.listen(PORT, () => {
   console.log(`Scarlett está viva en el puerto ${PORT} 💖`);
 });
