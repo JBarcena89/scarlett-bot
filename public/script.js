@@ -7,10 +7,8 @@ document.getElementById("login-form").addEventListener("submit", (e) => {
   userId = `${email}-${name}`;
 
   document.getElementById("form-container").style.display = "none";
-  document.getElementById("chat-container").style.display = "block";
-
+  document.getElementById("chat-container").style.display = "flex";
   addMessage("Scarlett", `Hola mi amor ${name} 💋 ¿En qué puedo complacerte hoy?`);
-  showActions();
 });
 
 document.getElementById("chat-form").addEventListener("submit", async (e) => {
@@ -21,7 +19,6 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
 
   addMessage("Tú", message);
   input.value = "";
-
   addTyping();
 
   try {
@@ -32,26 +29,10 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
     });
 
     const data = await res.json();
-
-    if (data.typing) {
-      // Simulación de espera
-      const replyRes = await new Promise(resolve =>
-        setTimeout(async () => {
-          const r = await fetch("/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message, userId })
-          });
-          resolve(r.json());
-        }, 5000)
-      );
-
+    setTimeout(() => {
       removeTyping();
-      addMessage("Scarlett", replyRes.response);
-    } else {
-      removeTyping();
-      addMessage("Scarlett", data.response);
-    }
+      addMessage("Scarlett", data.response || "Ups... no pude responder 😢");
+    }, 5000);
   } catch (err) {
     removeTyping();
     addMessage("Scarlett", "Ups... no puedo responder ahora 😢");
@@ -80,16 +61,4 @@ function addTyping() {
 function removeTyping() {
   const typing = document.getElementById("typing");
   if (typing) typing.remove();
-}
-
-function showActions() {
-  const container = document.getElementById("chat-container");
-  const actions = document.createElement("div");
-  actions.id = "chat-actions";
-  actions.innerHTML = `
-    <button onclick="window.open('https://fanlove.mx/scarlettWilson363', '_blank')">Contenido VIP 💎</button>
-    <button onclick="window.open('https://t.me/scarletoficial', '_blank')">Mi Canal 💌</button>
-    <button onclick="window.open('https://www.atom.bio/scarlettwilson363', '_blank')">Mis Redes 📸</button>
-  `;
-  container.appendChild(actions);
 }
