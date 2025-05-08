@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Constantes de Scarlett
 const VIP_LINK = "https://fanlove.mx/scarlettWilson363";
 const TELEGRAM_LINK = "https://t.me/scarletoficial";
-const SOCIALS_LINK = "https://instagram.com/scarlettvirtual";
+const SOCIALS_LINK = "https://www.atom.bio/scarlettwilson363";
 
 // Memoria de conversaciones por usuario
 const userHistories = new Map(); // clave: userId, valor: array de mensajes
