@@ -23,7 +23,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   addTyping();
 
   try {
-    const res = await fetch("/chat", {
+    const res = await fetch("https://scarlett-bot-c8nd.onrender.com/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, userId })
@@ -33,7 +33,7 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
 
     if (data.typing) {
       setTimeout(async () => {
-        const replyRes = await fetch("/chat", {
+        const replyRes = await fetch("https://scarlett-bot-c8nd.onrender.com/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message, userId })
