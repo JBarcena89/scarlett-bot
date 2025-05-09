@@ -1,7 +1,7 @@
 {
   "name": "scarlett-bot",
   "version": "1.0.0",
-  "description": "Tu novia virtual 24/7",
+  "description": "Scarlett, tu novia virtual 24/7",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -11,7 +11,7 @@
     "body-parser": "^1.20.2",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "node-fetch": "^2.6.7",
+    "node-fetch": "^3.3.2",
     "node-telegram-bot-api": "^0.61.0"
   }
 }
