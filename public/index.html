@@ -3,34 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scarlett 💋</title>
+  <title>Scarlett 💋 Chat</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="form-container">
-    <h2>💖 Bienvenido al chat de Scarlett 💖</h2>
-    <form id="login-form">
-      <input type="text" id="name" placeholder="Tu nombre" required />
-      <input type="email" id="email" placeholder="Tu correo" required />
-      <button type="submit">Entrar al chat</button>
-    </form>
-  </div>
+  <div class="container">
+    <div id="form-container" class="card">
+      <h2>Scarlett 💋</h2>
+      <p class="subtitle">Tu novia virtual 24/7</p>
+      <form id="login-form">
+        <input type="text" id="name" placeholder="Tu nombre" required />
+        <input type="email" id="email" placeholder="Tu correo" required />
+        <button type="submit">Entrar al chat</button>
+      </form>
+    </div>
 
-  <div id="chat-container" style="display:none;">
-    <div id="chat-header">Scarlett 💋</div>
-    <div id="chat-box"></div>
-    <form id="chat-form">
-      <input type="text" id="message-input" placeholder="Escribe algo sexy..." autocomplete="off" required />
-      <button type="submit">💌</button>
-    </form>
-
-    <div id="quick-buttons">
-      <button onclick="sendQuick('contenido')">Contenido VIP 🔥</button>
-      <button onclick="sendQuick('canal')">Mi Canal 💋</button>
-      <button onclick="sendQuick('redes')">Mis Redes 📸</button>
+    <div id="chat-container" class="card" style="display:none;">
+      <div id="chat-box" class="chat-box"></div>
+      <form id="chat-form" class="chat-form">
+        <input type="text" id="message-input" placeholder="Escribe algo sexy..." autocomplete="off" required />
+        <button type="submit">Enviar</button>
+      </form>
+      <div class="chat-buttons">
+        <button onclick="sendQuickReply('Contenido VIP')">🔞 Contenido VIP</button>
+        <button onclick="sendQuickReply('Mi Canal')">📢 Mi Canal</button>
+        <button onclick="sendQuickReply('Mis Redes')">📱 Mis Redes</button>
+      </div>
     </div>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>
