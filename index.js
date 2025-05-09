@@ -60,7 +60,9 @@ async function askOpenAI(userId, message) {
 // 🌐 Webchat
 app.post("/chat", async (req, res) => {
   const { message, userId } = req.body;
-  if (!message || !userId) return res.status(400).json({ error: "Faltan datos." });
+  if (!message || !userId || message.trim().length === 0 || message.length > 500) {
+    return res.status(400).json({ error: "Faltan datos o el mensaje no es válido." });
+  }
 
   const lower = message.toLowerCase();
   if (lower.includes("foto") || lower.includes("pack") || lower.includes("contenido")) {
@@ -72,7 +74,6 @@ app.post("/chat", async (req, res) => {
     }, 3000);
   }
 
-  res.json({ typing: true });
   setTimeout(async () => {
     const reply = await askOpenAI(userId, message);
     res.json({ typing: false, response: reply });
