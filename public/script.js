@@ -1,17 +1,31 @@
-document.getElementById("chat-form").addEventListener("submit", async (e) => {
+const form = document.querySelector("form");
+const input = document.getElementById("messageInput");
+const chatBox = document.getElementById("chatBox");
+const nameInput = document.getElementById("userName");
+const emailInput = document.getElementById("userEmail");
+const buttons = document.querySelectorAll(".chat-buttons button");
+
+function addMessage(text, sender) {
+  const div = document.createElement("div");
+  div.classList.add("message", sender);
+  div.textContent = text;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const name = document.getElementById("user-name").value.trim();
-  const email = document.getElementById("user-email").value.trim();
-  const message = document.getElementById("user-message").value.trim();
-  const userId = `${name}-${email}`;
+  const message = input.value.trim();
+  const name = nameInput.value.trim();
+  const email = emailInput.value.trim();
 
-  if (!name || !email || !message) {
-    alert("Por favor ingresa tu nombre, correo y mensaje.");
-    return;
-  }
+  if (!name || !email || !message) return;
 
-  addMessage("Tú", message);
-  addTyping();
+  const userId = btoa(email); // usar email como ID codificado
+  addMessage(message, "user");
+  input.value = "";
+
+  addMessage("Scarlett está escribiendo... 💋", "bot");
 
   const res = await fetch("/chat", {
     method: "POST",
@@ -20,30 +34,21 @@ document.getElementById("chat-form").addEventListener("submit", async (e) => {
   });
 
   const data = await res.json();
-  removeTyping();
-  addMessage("Scarlett", data.response);
+  const typingEl = chatBox.querySelector(".message.bot:last-child");
+  if (typingEl) typingEl.remove();
+  if (data.response) addMessage(data.response, "bot");
 });
 
-function addMessage(sender, text) {
-  const chat = document.getElementById("chat-box");
-  const msg = document.createElement("div");
-  msg.className = sender === "Tú" ? "message user" : "message bot";
-  msg.innerText = `${sender}: ${text}`;
-  chat.appendChild(msg);
-  chat.scrollTop = chat.scrollHeight;
-}
-
-function addTyping() {
-  const chat = document.getElementById("chat-box");
-  const typing = document.createElement("div");
-  typing.id = "typing";
-  typing.className = "message bot";
-  typing.innerText = "Scarlett está escribiendo...";
-  chat.appendChild(typing);
-  chat.scrollTop = chat.scrollHeight;
-}
-
-function removeTyping() {
-  const typing = document.getElementById("typing");
-  if (typing) typing.remove();
-}
+buttons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    let text = "";
+    if (btn.id === "vip") {
+      text = "🔥 ¿Quieres algo rico? Aquí están mis enlaces más calientes:\n💋 VIP: https://fanlove.mx/scarlettWilson363";
+    } else if (btn.id === "canal") {
+      text = "📸 Este es mi canal privado, bebé:\n👉 https://t.me/scarletoficial";
+    } else if (btn.id === "socials") {
+      text = "💖 Aquí están todas mis redes lindas:\n🌐 https://www.atom.bio/scarlettwilson363";
+    }
+    addMessage(text, "bot");
+  });
+});
