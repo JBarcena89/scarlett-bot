@@ -3,67 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scarlett 💋</title>
+  <title>Scarlett Chat 💋</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="chat-container">
-    <h1>Scarlett 💕 Tu novia 24/7</h1>
+  <div id="form-screen">
+    <h2>Bienvenido a Scarlett 💖</h2>
+    <form id="user-form">
+      <input type="text" id="userName" placeholder="Tu nombre" required />
+      <input type="email" id="userEmail" placeholder="Tu correo" required />
+      <button type="submit">Entrar al chat 💌</button>
+    </form>
+  </div>
 
-    <div class="user-info">
-      <input type="text" id="user-name" placeholder="Tu nombre..." required />
-      <input type="email" id="user-email" placeholder="Tu correo..." required />
-    </div>
-
-    <div class="chat-box" id="chat-box">
-      <div class="message bot">Scarlett: Hola amor 😘 ¿en qué puedo complacerte hoy?</div>
-    </div>
-
+  <div id="chat-screen" style="display:none;">
+    <div id="chatBox" class="chat-box"></div>
     <form id="chat-form">
-      <input type="text" id="user-message" placeholder="Escribe algo caliente..." required />
+      <input type="text" id="messageInput" placeholder="Escribe algo sexy..." autocomplete="off" required />
       <button type="submit">Enviar</button>
     </form>
-
     <div class="chat-buttons">
-      <button onclick="sendLink('vip')">Contenido VIP 🔥</button>
-      <button onclick="sendLink('canal')">Mi Canal 📸</button>
-      <button onclick="sendLink('redes')">Mis Redes 💖</button>
+      <button id="vip">Contenido VIP</button>
+      <button id="canal">Mi Canal</button>
+      <button id="socials">Mis Redes</button>
     </div>
   </div>
 
   <script src="script.js"></script>
-  <script>
-    const VIP_LINK = "https://fanlove.mx/scarlettWilson363";
-    const TELEGRAM_LINK = "https://t.me/scarletoficial";
-    const SOCIALS_LINK = "https://www.atom.bio/scarlettwilson363";
-
-    function sendLink(type) {
-      let text = "";
-      let link = "";
-
-      if (type === "vip") {
-        text = "¿Quieres ver mi lado más atrevido? 🔥 Aquí tienes mi contenido VIP.";
-        link = VIP_LINK;
-      } else if (type === "canal") {
-        text = "Únete a mi canal privado en Telegram, bebé 😘";
-        link = TELEGRAM_LINK;
-      } else if (type === "redes") {
-        text = "Aquí están todas mis redes, mi amor 💖";
-        link = SOCIALS_LINK;
-      }
-
-      addMessage("Scarlett", `${text}\n👉 ${link}`);
-      window.open(link, "_blank");
-    }
-
-    function addMessage(sender, text) {
-      const chat = document.getElementById("chat-box");
-      const msg = document.createElement("div");
-      msg.className = sender === "Tú" ? "message user" : "message bot";
-      msg.innerText = `${sender}: ${text}`;
-      chat.appendChild(msg);
-      chat.scrollTop = chat.scrollHeight;
-    }
-  </script>
 </body>
 </html>
