@@ -1,9 +1,10 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const ClickSchema = new mongoose.Schema({
+const clickSchema = new mongoose.Schema({
   userId: String,
-  type: String, // 'vip', 'canal', 'socials'
+  button: String,
+  source: String, // webchat, telegram, facebook
   timestamp: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Click', ClickSchema);
+export default mongoose.model("Click", clickSchema);
