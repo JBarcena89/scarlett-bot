@@ -49,3 +49,18 @@ function addMessage(text, sender) {
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+// 🔥 Nueva función para registrar clics
+async function trackClick(button) {
+  if (!userId) return;
+
+  try {
+    await fetch("/click", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, button })
+    });
+  } catch (err) {
+    console.error("❌ Error al registrar clic:", err);
+  }
+}
