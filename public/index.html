@@ -23,14 +23,21 @@
       <button type="submit">Enviar</button>
     </form>
 
-    <!-- Botones modificados como enlaces -->
+    <!-- Botones con seguimiento y respuesta en el chat -->
     <div class="chat-buttons">
-      <a href="https://fanlove.mx/scarlettWilson363" target="_blank" class="chat-button">Contenido VIP</a>
-      <a href="https://t.me/scarletoficial" target="_blank" class="chat-button">Mi Canal</a>
-      <a href="https://www.atom.bio/scarlettwilson363" target="_blank" class="chat-button">Mis Redes</a>
+      <button class="chat-button" onclick="handleLinkClick('vip', 'https://fanlove.mx/scarlettWilson363', '💋 Aquí tienes mi contenido VIP... pero cuidado, es puro fuego 🔥')">Contenido VIP</button>
+      <button class="chat-button" onclick="handleLinkClick('canal', 'https://t.me/scarletoficial', '📸 Este es mi canal de Telegram... te espero ahí con más fotitos ricas 💖')">Mi Canal</button>
+      <button class="chat-button" onclick="handleLinkClick('socials', 'https://www.atom.bio/scarlettwilson363', '💖 Aquí están todas mis redes, para que no me pierdas de vista ni un segundo 😘')">Mis Redes</button>
     </div>
   </div>
 
   <script src="script.js"></script>
+  <script>
+    function handleLinkClick(button, url, responseText) {
+      trackClick(button); // registra el clic
+      addMessage(responseText, "bot"); // respuesta coqueta en el chat
+      window.open(url, "_blank"); // abre el enlace
+    }
+  </script>
 </body>
 </html>
