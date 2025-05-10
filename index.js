@@ -129,3 +129,34 @@ app.post("/click", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Scarlett está viva en el puerto ${PORT} 💖`);
 });
+
+// Ruta protegida para dashboard
+app.get("/admin/dashboard", async (req, res) => {
+  const { token } = req.query;
+  if (token !== process.env.ADMIN_TOKEN) {
+    return res.status(401).send("Acceso denegado");
+  }
+
+  try {
+    const totalUsers = await mongoose.model("User").countDocuments();
+    const totalClicks = await mongoose.model("Click").countDocuments();
+
+    const clicksByButton = await mongoose.model("Click").aggregate([
+      { $group: { _id: "$button", count: { $sum: 1 } } }
+    ]);
+
+    const usersBySource = await mongoose.model("User").aggregate([
+      { $group: { _id: "$source", count: { $sum: 1 } } }
+    ]);
+
+    res.json({
+      totalUsers,
+      totalClicks,
+      clicksByButton,
+      usersBySource
+    });
+  } catch (err) {
+    console.error("❌ Error en dashboard:", err);
+    res.sendStatus(500);
+  }
+});
