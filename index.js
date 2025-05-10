@@ -111,17 +111,21 @@ if (process.env.TELEGRAM_BOT_TOKEN && process.env.DOMAIN) {
 
 // 💬 Facebook Messenger
 app.get("/webhook", (req, res) => {
-  const VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN;
+  const VERIFY_TOKEN = "ScarlettLove"; // Asegúrate de que coincida exactamente con lo que pusiste en Facebook
+
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
 
-  if (mode && token && mode === "subscribe" && token === VERIFY_TOKEN) {
-    return res.status(200).send(challenge);
+  if (mode === "subscribe" && token === VERIFY_TOKEN) {
+    console.log("✅ Facebook webhook verificado correctamente.");
+    res.status(200).send(challenge); // Facebook espera esta respuesta exacta
   } else {
-    return res.sendStatus(403);
+    console.log("❌ Error al verificar Facebook webhook.");
+    res.sendStatus(403);
   }
 });
+
 
 app.post("/webhook", async (req, res) => {
   const body = req.body;
