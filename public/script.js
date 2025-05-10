@@ -49,13 +49,3 @@ function addMessage(text, sender) {
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
-
-document.getElementById("vip").addEventListener("click", () => {
-  addMessage("💋 VIP: https://fanlove.mx/scarlettWilson363", "bot");
-});
-document.getElementById("canal").addEventListener("click", () => {
-  addMessage("📸 Telegram: https://t.me/scarletoficial", "bot");
-});
-document.getElementById("socials").addEventListener("click", () => {
-  addMessage("💖 Instagram y más: https://www.atom.bio/scarlettwilson363", "bot");
-});
