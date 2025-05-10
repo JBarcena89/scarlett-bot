@@ -32,6 +32,7 @@ const User = mongoose.model("User", new mongoose.Schema({
 const Click = mongoose.model("Click", new mongoose.Schema({
   userId: String,
   button: String, // 'vip', 'canal', 'socials'
+  source: String, // 'webchat', 'telegram', etc.
   timestamp: { type: Date, default: Date.now }
 }));
 
@@ -108,20 +109,23 @@ app.post("/chat", async (req, res) => {
   }, 3000);
 });
 
-// ✨ PASO 7: Rutas para registrar clics
+// ✨ PASO 7: Ruta para registrar clics desde frontend
 app.post("/click", async (req, res) => {
   const { userId, button } = req.body;
   if (!userId || !button) return res.sendStatus(400);
 
-  await Click.create({ userId, button });
-  res.sendStatus(200);
+  try {
+    await Click.create({ userId, button, source: "webchat", timestamp: new Date() });
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("❌ Error guardando clic:", err);
+    res.sendStatus(500);
+  }
 });
 
-// 📩 Telegram y Facebook Messenger (sin cambios en esta parte)
+// 📩 Aquí continúa tu integración con Telegram y Facebook Messenger...
 
-... (todo lo que ya tenías de Telegram y Messenger va aquí igual) ...
-
-// Inicia servidor
+// 🟢 Inicia el servidor
 app.listen(PORT, () => {
   console.log(`Scarlett está viva en el puerto ${PORT} 💖`);
 });
