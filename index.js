@@ -124,6 +124,90 @@ app.post("/click", async (req, res) => {
 });
 
 // 📩 Aquí continúa tu integración con Telegram y Facebook Messenger...
+if (process.env.TELEGRAM_BOT_TOKEN) {
+  const telegramBot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
+
+  telegramBot.on('message', async (msg) => {
+    const chatId = msg.chat.id;
+    const text = msg.text;
+
+    // Guardar usuario en Mongo
+    const existing = await User.findOne({ userId: chatId.toString() });
+    if (!existing) {
+      await User.create({ userId: chatId.toString(), source: "telegram" });
+    }
+
+    const lower = text.toLowerCase();
+    if (lower.includes("foto") || lower.includes("pack") || lower.includes("contenido")) {
+      return telegramBot.sendMessage(chatId,
+        `🔥 ¿Quieres algo rico? Aquí están mis enlaces más calientes:\n💋 VIP: ${VIP_LINK}\n📸 Telegram: ${TELEGRAM_LINK}\n💖 Instagram: ${SOCIALS_LINK}`
+      );
+    }
+
+    telegramBot.sendChatAction(chatId, "typing");
+    setTimeout(async () => {
+      const reply = await askOpenAI(chatId.toString(), text);
+      telegramBot.sendMessage(chatId, reply);
+    }, 3000);
+  });
+}
+
+// Ruta para verificación del webhook
+app.get('/webhook', (req, res) => {
+  if (req.query['hub.verify_token'] === process.env.FB_VERIFY_TOKEN) {
+    return res.send(req.query['hub.challenge']);
+  }
+  res.send('Token de verificación inválido');
+});
+
+// Ruta para recibir mensajes
+app.post('/webhook', async (req, res) => {
+  const body = req.body;
+
+  if (body.object === 'page') {
+    body.entry.forEach(async (entry) => {
+      const event = entry.messaging[0];
+      const senderId = event.sender.id;
+      const text = event.message?.text;
+
+      if (text) {
+        // Guardar usuario en Mongo
+        const existing = await User.findOne({ userId: senderId });
+        if (!existing) {
+          await User.create({ userId: senderId, source: "facebook" });
+        }
+
+        const lower = text.toLowerCase();
+        if (lower.includes("foto") || lower.includes("pack") || lower.includes("contenido")) {
+          return await fetch(`https://graph.facebook.com/v17.0/me/messages?access_token=${process.env.FB_PAGE_ACCESS_TOKEN}`, {
+            method: 'POST',
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              recipient: { id: senderId },
+              message: {
+                text: `🔥 ¿Quieres algo rico? Aquí están mis enlaces más calientes:\n💋 VIP: ${VIP_LINK}\n📸 Telegram: ${TELEGRAM_LINK}\n💖 Instagram: ${SOCIALS_LINK}`
+              }
+            })
+          });
+        }
+
+        const reply = await askOpenAI(senderId, text);
+        await fetch(`https://graph.facebook.com/v17.0/me/messages?access_token=${process.env.FB_PAGE_ACCESS_TOKEN}`, {
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            recipient: { id: senderId },
+            message: { text: reply }
+          })
+        });
+      }
+    });
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(404);
+  }
+});
+
 
 // 🟢 Inicia el servidor
 app.listen(PORT, () => {
