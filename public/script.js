@@ -1,32 +1,70 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scarlett - Tu novia virtual 💕</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div id="form-screen">
-    <h2>Scarlett 💖</h2>
-    <p>Tu novia 24/7, estoy para ti para lo que necesites 😘</p>
-    <input type="text" id="name" placeholder="Tu nombre" />
-    <input type="email" id="email" placeholder="Tu correo" />
-    <button onclick="startChat()">Iniciar Chat</button>
-  </div>
+let userId = null;
+let userName = "";
+let userEmail = "";
 
-  <div id="chat-screen" style="display:none;">
-    <div class="chat-box" id="chat-box"></div>
-    <input type="text" id="user-input" placeholder="Escríbeme algo..." />
-    <button onclick="sendMessage()">Enviar</button>
+function startChat() {
+  userName = document.getElementById("name").value.trim();
+  userEmail = document.getElementById("email").value.trim();
+  if (!userName || !userEmail) {
+    alert("Por favor ingresa tu nombre y correo.");
+    return;
+  }
+  userId = `${userEmail}_${Date.now()}`;
+  document.getElementById("form-screen").style.display = "none";
+  document.getElementById("chat-screen").style.display = "block";
 
-    <div class="chat-buttons">
-      <button class="chat-button" onclick="sendQuickReply('¿Tienes algo sexy para mí?')">Contenido VIP 🔥</button>
-      <button class="chat-button" onclick="sendQuickReply('¿Dónde te sigo, amor?')">Mis Redes 💋</button>
-      <button class="chat-button" onclick="sendQuickReply('Quiero unirme a tu canal')">Mi Canal 📲</button>
-    </div>
-  </div>
+  appendMessage("Scarlett", `Hola ${userName}, qué bueno tenerte aquí 💖`, "bot");
+}
 
-  <script src="script.js"></script>
-</body>
-</html>
+function appendMessage(sender, text, type) {
+  const chatBox = document.getElementById("chat-box");
+  const messageDiv = document.createElement("div");
+  messageDiv.className = `message ${type}`;
+  messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  chatBox.appendChild(messageDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById("user-input");
+  const message = input.value.trim();
+  if (!message) return;
+
+  appendMessage("Tú", message, "user");
+  input.value = "";
+
+  // Simula "escribiendo..."
+  const typingDiv = document.createElement("div");
+  typingDiv.className = "message bot";
+  typingDiv.id = "typing";
+  typingDiv.innerHTML = "<em>Scarlett está escribiendo...</em>";
+  document.getElementById("chat-box").appendChild(typingDiv);
+
+  try {
+    const res = await fetch("/webchat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, userId }),
+    });
+    const data = await res.json();
+    document.getElementById("typing").remove();
+    appendMessage("Scarlett", data.response, "bot");
+  } catch (err) {
+    document.getElementById("typing").remove();
+    appendMessage("Scarlett", "Oops, algo salió mal 😢", "bot");
+  }
+}
+
+function sendQuickReply(message) {
+  document.getElementById("user-input").value = message;
+  sendMessage();
+  logClick(message);
+}
+
+async function logClick(button) {
+  await fetch("/webchat/click", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, button }),
+  });
+}
