@@ -1,4 +1,8 @@
-require("dotenv").config();
+// Solo cargar dotenv en entorno local
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
+
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
@@ -23,6 +27,9 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// Debug para verificar variable de entorno
+console.log("🔧 MONGODB_URI:", process.env.MONGODB_URI ? "✅ definida" : "❌ no definida");
+
 // Conexión a MongoDB y arranque del servidor
 mongoose
   .connect(process.env.MONGODB_URI)
@@ -32,4 +39,4 @@ mongoose
       console.log(`🔥 Scarlett está activa en http://localhost:${PORT}`);
     });
   })
-  .catch((err) => console.error("Error de conexión MongoDB:", err));
+  .catch((err) => console.error("❌ Error de conexión MongoDB:", err));
