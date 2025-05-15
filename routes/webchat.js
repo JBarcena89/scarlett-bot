@@ -20,8 +20,14 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Ruta para guardar clics desde el chat
 router.post("/click", async (req, res) => {
   const { userId, button } = req.body;
+
+  if (!userId || !button) {
+    return res.status(400).json({ error: "Faltan datos de clic" });
+  }
+
   try {
     await Click.create({ userId, button });
     res.sendStatus(200);
@@ -31,5 +37,22 @@ router.post("/click", async (req, res) => {
   }
 });
 
+// 📩 Ruta para guardar clics desde botones visibles usando email
+router.post("/track", async (req, res) => {
+  const { buttonName, email } = req.body;
+
+  if (!buttonName || !email) {
+    return res.status(400).json({ error: "Faltan datos de tracking" });
+  }
+
+  try {
+    const userId = `${email}_manual`; // Se genera userId simple para tracking
+    await Click.create({ userId, button: buttonName });
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("Error registrando clic manual:", err);
+    res.sendStatus(500);
+  }
+});
+
 module.exports = router;
-// routes/webchat.js
