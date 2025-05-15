@@ -1,52 +1,56 @@
 const TelegramBot = require("node-telegram-bot-api");
 const { Configuration, OpenAIApi } = require("openai");
+const User = require("../models/User");
+const Conversation = require("../models/Conversation");
 
-function iniciarTelegramBot() {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const openaiKey = process.env.OPENAI_API_KEY;
+const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
 
-  if (!token || !openaiKey) {
-    console.warn("⚠️ TELEGRAM_BOT_TOKEN u OPENAI_API_KEY no definidos.");
-    return;
+const openai = new OpenAIApi(
+  new Configuration({ apiKey: process.env.OPENAI_API_KEY })
+);
+
+bot.on("message", async (msg) => {
+  const chatId = msg.chat.id;
+  const text = msg.text;
+
+  // Buscar o crear usuario
+  let user = await User.findOne({ telegramId: chatId.toString() });
+  if (!user) {
+    user = await User.create({
+      telegramId: chatId.toString(),
+      name: msg.from.first_name,
+      email: "" // lo puedes pedir en otro flujo si quieres
+    });
   }
 
-  const bot = new TelegramBot(token, { polling: true });
+  // Guardar mensaje del usuario
+  let conversation = await Conversation.findOne({ userId: user._id });
+  if (!conversation) {
+    conversation = await Conversation.create({
+      userId: user._id,
+      messages: []
+    });
+  }
+  conversation.messages.push({ sender: "user", message: text });
+  await conversation.save();
 
-  const openai = new OpenAIApi(
-    new Configuration({
-      apiKey: openaiKey,
-    })
-  );
-
-  bot.on("message", async (msg) => {
-    const chatId = msg.chat.id;
-    const userMessage = msg.text;
-
-    try {
-      const completion = await openai.createChatCompletion({
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content:
-              "Eres Scarlett, una novia virtual coqueta, tóxica-divertida y misteriosa. Hablas español, inglés y portugués.",
-          },
-          {
-            role: "user",
-            content: userMessage,
-          },
-        ],
-      });
-
-      const reply = completion.data.choices[0].message.content;
-      await bot.sendMessage(chatId, reply);
-    } catch (error) {
-      console.error("❌ Error al responder en Telegram:", error.message);
-      await bot.sendMessage(chatId, "Ups bebé... no puedo contestar ahora 💔");
-    }
+  // Llamada a OpenAI
+  const completion = await openai.createChatCompletion({
+    model: "gpt-4",
+    messages: [
+      { role: "system", content: "Eres Scarlett, una novia tóxica-divertida, coqueta y sexy." },
+      ...conversation.messages.map((m) => ({
+        role: m.sender === "user" ? "user" : "assistant",
+        content: m.message
+      }))
+    ]
   });
 
-  console.log("🤖 Scarlett está escuchando en Telegram");
-}
+  const reply = completion.data.choices[0].message.content;
 
-module.exports = iniciarTelegramBot;
+  // Guardar respuesta del bot
+  conversation.messages.push({ sender: "bot", message: reply });
+  await conversation.save();
+
+  bot.sendMessage(chatId, reply);
+});
