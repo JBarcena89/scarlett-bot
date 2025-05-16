@@ -1,9 +1,10 @@
-const mongoose = require("mongoose");
+// models/Click.js
+import mongoose from "mongoose";
 
 const clickSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  buttonName: { type: String, required: true }, // 'vip', 'canal', 'redes'
+  userId: String,
+  button: String,
   timestamp: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("Click", clickSchema);
+export default mongoose.model("Click", clickSchema);
