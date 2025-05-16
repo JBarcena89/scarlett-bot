@@ -1,9 +1,10 @@
-const express = require("express");
+// routes/webchat.js
+import express from "express";
+import { getOpenAIResponse } from "../services/openai.js";
+import User from "../models/User.js";
+import Click from "../models/Click.js";
+
 const router = express.Router();
-const { getOpenAIResponse } = require("../services/openai");
-const User = require("../models/User");
-const Click = require("../models/Click");
-const reply = await getOpenAIResponse(message, userId);
 
 router.post("/", async (req, res) => {
   const { message, userId } = req.body;
@@ -13,7 +14,7 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    const reply = await getOpenAIResponse(message);
+    const reply = await getOpenAIResponse(message, userId);
     res.json({ response: reply });
   } catch (err) {
     console.error("Error al obtener respuesta:", err);
@@ -21,7 +22,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Ruta para guardar clics desde el chat
 router.post("/click", async (req, res) => {
   const { userId, button } = req.body;
 
@@ -38,7 +38,6 @@ router.post("/click", async (req, res) => {
   }
 });
 
-// 📩 Ruta para guardar clics desde botones visibles usando email
 router.post("/track", async (req, res) => {
   const { buttonName, email } = req.body;
 
@@ -47,7 +46,7 @@ router.post("/track", async (req, res) => {
   }
 
   try {
-    const userId = `${email}_manual`; // Se genera userId simple para tracking
+    const userId = `${email}_manual`;
     await Click.create({ userId, button: buttonName });
     res.sendStatus(200);
   } catch (err) {
@@ -56,4 +55,4 @@ router.post("/track", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
