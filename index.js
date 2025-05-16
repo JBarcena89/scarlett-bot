@@ -6,6 +6,7 @@ const iniciarTelegramBot = require("./services/telegramBot");
 const webchatRoutes = require("./routes/webchat");
 const telegramRoutes = require("./routes/telegram");
 const facebookRoutes = require("./routes/facebook");
+const adminRoutes = require("./routes/admin");
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/chat", webchatRoutes);
 app.use("/telegram", telegramRoutes);
 app.use("/facebook", facebookRoutes);
+app.use("/admin", adminRoutes);
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
