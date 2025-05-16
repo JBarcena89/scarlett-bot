@@ -1,11 +1,12 @@
-const express = require("express");
+// routes/admin.js
+import express from "express";
+import Click from "../models/Click.js";
+
 const router = express.Router();
-const Click = require("../models/Click");
 
 const BASIC_USER = process.env.ADMIN_USER;
 const BASIC_PASS = process.env.ADMIN_PASS;
 
-// Middleware de autenticación básica
 router.use((req, res, next) => {
   const auth = req.headers.authorization;
 
@@ -26,12 +27,10 @@ router.use((req, res, next) => {
   return res.status(401).send("Invalid credentials.");
 });
 
-// Página HTML del panel
 router.get("/", (req, res) => {
   res.sendFile("admin.html", { root: "./public" });
 });
 
-// Datos para las gráficas
 router.get("/stats", async (req, res) => {
   try {
     const clicks = await Click.find({});
@@ -53,4 +52,4 @@ router.get("/stats", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
