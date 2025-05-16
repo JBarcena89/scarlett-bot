@@ -1,7 +1,7 @@
-const express = require("express");
+// routes/facebook.js
+import express from "express";
 const router = express.Router();
 
-// Aquí iría la lógica para Facebook Webhooks
 router.get("/", (req, res) => {
   const VERIFY_TOKEN = process.env.FACEBOOK_VERIFY_TOKEN;
   const mode = req.query["hub.mode"];
@@ -20,5 +20,4 @@ router.post("/", (req, res) => {
   res.send("Facebook Webhook recibido.");
 });
 
-module.exports = router;
-// routes/facebook.js
+export default router;
