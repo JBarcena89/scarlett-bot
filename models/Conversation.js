@@ -1,5 +1,4 @@
-// models/Conversation.js
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const conversationSchema = new mongoose.Schema({
   userId: String,
@@ -12,4 +11,5 @@ const conversationSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("Conversation", conversationSchema);
+const Conversation = mongoose.model("Conversation", conversationSchema);
+export default Conversation;
