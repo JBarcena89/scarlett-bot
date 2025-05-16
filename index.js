@@ -1,12 +1,16 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const path = require("path");
-const iniciarTelegramBot = require("./services/telegramBot");
+import express from "express";
+import mongoose from "mongoose";
+import path from "path";
+import { fileURLToPath } from "url";
+import iniciarTelegramBot from "./services/telegramBot.js";
 
-const webchatRoutes = require("./routes/webchat");
-const telegramRoutes = require("./routes/telegram");
-const facebookRoutes = require("./routes/facebook");
-const adminRoutes = require("./routes/admin");
+import webchatRoutes from "./routes/webchat.js";
+import telegramRoutes from "./routes/telegram.js";
+import facebookRoutes from "./routes/facebook.js";
+import adminRoutes from "./routes/admin.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -24,5 +28,13 @@ app.get("/", (req, res) => {
 
 console.log("🔧 MONGODB_URI:", process.env.MONGODB_URI ? "✅ definida" : "❌ no definida");
 
-// Iniciar el bot de Telegram
-iniciarTelegramBot();
+// Conexión a MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log("✅ Conectado a MongoDB");
+  iniciarTelegramBot(); // solo iniciamos el bot después de conectar DB
+}).catch((err) => {
+  console.error("❌ Error al conectar a MongoDB:", err);
+});
