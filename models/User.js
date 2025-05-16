@@ -1,10 +1,11 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
   name: String,
   email: String,
-  telegramId: String, // Para distinguir usuarios en Telegram
+  telegramId: String,
   createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;
