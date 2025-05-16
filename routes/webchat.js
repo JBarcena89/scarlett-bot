@@ -3,6 +3,7 @@ const router = express.Router();
 const { getOpenAIResponse } = require("../services/openai");
 const User = require("../models/User");
 const Click = require("../models/Click");
+const reply = await getOpenAIResponse(message, userId);
 
 router.post("/", async (req, res) => {
   const { message, userId } = req.body;
