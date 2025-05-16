@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel de Scarlett 📊</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #fdf0f5;
+    }
+    h1 { color: #d63384; }
+    canvas { margin: 30px auto; max-width: 600px; }
+  </style>
+</head>
+<body>
+  <h1>Panel de Estadísticas de Scarlett 💘</h1>
+  <p><strong>Usuarios únicos:</strong> <span id="unique-users">0</span></p>
+
+  <canvas id="clickChart"></canvas>
+
+  <script>
+    async function loadStats() {
+      const res = await fetch("/admin/stats");
+      const data = await res.json();
+
+      document.getElementById("unique-users").textContent = data.uniqueUsers;
+
+      const labels = Object.keys(data.stats);
+      const values = Object.values(data.stats);
+
+      new Chart(document.getElementById("clickChart"), {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Clics por botón",
+            data: values,
+            backgroundColor: "#e83e8c"
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    }
+
+    loadStats();
+  </script>
+</body>
+</html>
