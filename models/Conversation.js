@@ -1,15 +1,14 @@
+// models/Conversation.js
 import mongoose from "mongoose";
 
-const conversationSchema = new mongoose.Schema({
-  userId: String,
-  messages: [
-    {
-      role: { type: String, enum: ["user", "assistant"], required: true },
-      content: { type: String, required: true }
-    }
-  ],
-  createdAt: { type: Date, default: Date.now }
+const MessageSchema = new mongoose.Schema({
+  role: { type: String, required: true }, // "user" o "assistant"
+  content: { type: String, required: true },
 });
 
-const Conversation = mongoose.model("Conversation", conversationSchema);
-export default Conversation;
+const ConversationSchema = new mongoose.Schema({
+  userId: { type: String, required: true },
+  messages: [MessageSchema],
+});
+
+export default mongoose.model("Conversation", ConversationSchema);
