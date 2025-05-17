@@ -1,7 +1,8 @@
 // services/openai.js
-const { Configuration, OpenAIApi } = require("openai");
-const Conversation = require("../models/Conversation");
-require("dotenv").config();
+import { Configuration, OpenAIApi } from "openai";
+import Conversation from "../models/Conversation.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -9,10 +10,9 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
-async function getOpenAIResponse(message, userId) {
+export async function getOpenAIResponse(message, userId) {
   let conversation = await Conversation.findOne({ userId });
 
-  // Si no existe historial, lo creamos
   if (!conversation) {
     conversation = await Conversation.create({
       userId,
@@ -20,16 +20,15 @@ async function getOpenAIResponse(message, userId) {
     });
   }
 
-  // Agrega mensaje del usuario
   conversation.messages.push({ role: "user", content: message });
 
-  // Prepara los mensajes para enviar al modelo
   const messages = [
     {
       role: "system",
-      content: "Eres Scarlett, una novia virtual sexy, coqueta, divertida y un poco tóxica. Habla de forma natural, apasionada y picante, como una chica celosa pero encantadora.",
+      content:
+        "Eres Scarlett, una novia virtual sexy, coqueta, divertida y un poco tóxica. Habla de forma natural, apasionada y picante, como una chica celosa pero encantadora.",
     },
-    ...conversation.messages.slice(-10), // solo los últimos 10 mensajes para mantenerlo corto
+    ...conversation.messages.slice(-10),
   ];
 
   try {
@@ -40,7 +39,6 @@ async function getOpenAIResponse(message, userId) {
 
     const reply = completion.data.choices[0].message.content;
 
-    // Agrega la respuesta del bot al historial
     conversation.messages.push({ role: "assistant", content: reply });
     await conversation.save();
 
@@ -50,5 +48,3 @@ async function getOpenAIResponse(message, userId) {
     return "Ups... no puedo responder ahora 🥺";
   }
 }
-
-module.exports = { getOpenAIResponse };
