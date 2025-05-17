@@ -12,10 +12,7 @@ export async function getOpenAIResponse(message, userId) {
   let conversation = await Conversation.findOne({ userId });
 
   if (!conversation) {
-    conversation = await Conversation.create({
-      userId,
-      messages: [],
-    });
+    conversation = await Conversation.create({ userId, messages: [] });
   }
 
   conversation.messages.push({ role: "user", content: message });
