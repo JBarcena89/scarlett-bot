@@ -4,7 +4,6 @@ import Conversation from "../models/Conversation.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-// Crear cliente de OpenAI con la nueva sintaxis
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -19,10 +18,8 @@ export async function getOpenAIResponse(message, userId) {
     });
   }
 
-  // Guardar mensaje del usuario
   conversation.messages.push({ role: "user", content: message });
 
-  // Preparar mensajes para enviar a OpenAI
   const messages = [
     {
       role: "system",
@@ -40,7 +37,6 @@ export async function getOpenAIResponse(message, userId) {
 
     const reply = completion.choices[0].message.content;
 
-    // Guardar respuesta del bot
     conversation.messages.push({ role: "assistant", content: reply });
     await conversation.save();
 
