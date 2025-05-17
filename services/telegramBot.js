@@ -12,7 +12,7 @@ const openai = new OpenAI({
 });
 
 function iniciarTelegramBot() {
-  const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
+  const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 
   bot.on("message", async (msg) => {
     const chatId = msg.chat.id;
