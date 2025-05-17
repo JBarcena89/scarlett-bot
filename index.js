@@ -13,6 +13,10 @@ import telegramRoutes from "./routes/telegram.js";
 import facebookRoutes from "./routes/facebook.js";
 import adminRoutes from "./routes/admin.js";
 
+// 🆕 Nuevas integraciones
+import facebookWebhook from "./services/facebookWebhook.js";
+import whatsappWebhook from "./services/whatsappWebhook.js";
+
 // Obtener __dirname en ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,11 +27,15 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// Rutas
+// Rutas existentes
 app.use("/chat", webchatRoutes);
 app.use("/telegram", telegramRoutes);
 app.use("/facebook", facebookRoutes);
 app.use("/admin", adminRoutes);
+
+// 🆕 Nuevas rutas webhook
+app.use("/webhook/facebook", facebookWebhook);
+app.use("/webhook/whatsapp", whatsappWebhook);
 
 // Página principal
 app.get("/", (req, res) => {
