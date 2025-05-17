@@ -1,14 +1,13 @@
 // services/openai.js
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 import Conversation from "../models/Conversation.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-const configuration = new Configuration({
+// Crear cliente de OpenAI con la nueva sintaxis
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-const openai = new OpenAIApi(configuration);
 
 export async function getOpenAIResponse(message, userId) {
   let conversation = await Conversation.findOne({ userId });
@@ -20,8 +19,10 @@ export async function getOpenAIResponse(message, userId) {
     });
   }
 
+  // Guardar mensaje del usuario
   conversation.messages.push({ role: "user", content: message });
 
+  // Preparar mensajes para enviar a OpenAI
   const messages = [
     {
       role: "system",
@@ -32,13 +33,14 @@ export async function getOpenAIResponse(message, userId) {
   ];
 
   try {
-    const completion = await openai.createChatCompletion({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4",
       messages,
     });
 
-    const reply = completion.data.choices[0].message.content;
+    const reply = completion.choices[0].message.content;
 
+    // Guardar respuesta del bot
     conversation.messages.push({ role: "assistant", content: reply });
     await conversation.save();
 
