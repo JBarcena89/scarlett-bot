@@ -14,6 +14,7 @@ function startChat() {
   userId = `${userEmail}_${Date.now()}`;
   localStorage.setItem("name", userName);
   localStorage.setItem("email", userEmail);
+  localStorage.setItem("userId", userId);
 
   document.getElementById("form-screen").style.display = "none";
   document.getElementById("chat-screen").style.display = "block";
@@ -33,29 +34,25 @@ function sendMessage() {
   fetch("/chat", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      name: userName,
-      email: userEmail,
-      message
-    })
+      userId: localStorage.getItem("userId"),
+      message,
+    }),
   })
     .then((res) => res.json())
     .then((data) => {
-      hideTyping();
-      appendMessage("Scarlett", data.reply);
+      setTimeout(() => {
+        hideTyping();
+        appendMessage("Scarlett", data.response);
+      }, 3000);
     })
     .catch((err) => {
       hideTyping();
       appendMessage("Scarlett", "Ups, amor... algo falló 😢");
       console.error(err);
     });
-}
-
-function sendQuickReply(text) {
-  document.getElementById("user-input").value = text;
-  sendMessage();
 }
 
 function appendMessage(sender, message) {
