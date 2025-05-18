@@ -1,6 +1,7 @@
 import express from "express";
 import { getOpenAIResponse } from "./openai.js";
 import User from "../models/User.js";
+import fetch from "node-fetch"; // ⬅️ Necesario
 
 const router = express.Router();
 
@@ -20,7 +21,7 @@ router.post("/", async (req, res) => {
     user = await User.create({ whatsappId: from, name: "WhatsUser", email: "" });
   }
 
-  const userId = `wa_${from}`;
+  const userId = `wa_${from}`; // ✅ corrección
   const reply = await getOpenAIResponse(text, userId);
 
   await fetch(`https://graph.facebook.com/v18.0/${process.env.WHATSAPP_PHONE_ID}/messages`, {
