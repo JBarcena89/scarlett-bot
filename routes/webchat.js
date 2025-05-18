@@ -1,7 +1,6 @@
-// routes/webchat.js
 import express from "express";
 import User from "../models/User.js";
-import { getOpenAIResponse } from "./openai.js"; // asegúrate que el path esté bien
+import { getOpenAIResponse } from "./openai.js";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
