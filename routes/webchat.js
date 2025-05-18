@@ -1,58 +1,23 @@
 // routes/webchat.js
 import express from "express";
-import { getOpenAIResponse } from "../services/openai.js";
 import User from "../models/User.js";
-import Click from "../models/Click.js";
-
+import { getOpenAIResponse } from "./openai.js"; // asegúrate que el path esté bien
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const { message, userId } = req.body;
+  const { name, email, message } = req.body;
 
-  if (!message || !userId) {
-    return res.status(400).json({ error: "Faltan datos" });
+  if (!name || !email || !message) return res.status(400).json({ error: "Faltan datos" });
+
+  let user = await User.findOne({ email });
+  if (!user) {
+    user = await User.create({ name, email });
   }
 
-  try {
-    const reply = await getOpenAIResponse(message, userId);
-    res.json({ response: reply });
-  } catch (err) {
-    console.error("Error al obtener respuesta:", err);
-    res.status(500).json({ error: "Error al responder" });
-  }
-});
+  const userId = `web_${email}`;
+  const reply = await getOpenAIResponse(message, userId);
 
-router.post("/click", async (req, res) => {
-  const { userId, button } = req.body;
-
-  if (!userId || !button) {
-    return res.status(400).json({ error: "Faltan datos de clic" });
-  }
-
-  try {
-    await Click.create({ userId, button });
-    res.sendStatus(200);
-  } catch (err) {
-    console.error("Error registrando clic:", err);
-    res.sendStatus(500);
-  }
-});
-
-router.post("/track", async (req, res) => {
-  const { buttonName, email } = req.body;
-
-  if (!buttonName || !email) {
-    return res.status(400).json({ error: "Faltan datos de tracking" });
-  }
-
-  try {
-    const userId = `${email}_manual`;
-    await Click.create({ userId, button: buttonName });
-    res.sendStatus(200);
-  } catch (err) {
-    console.error("Error registrando clic manual:", err);
-    res.sendStatus(500);
-  }
+  res.json({ reply });
 });
 
 export default router;
