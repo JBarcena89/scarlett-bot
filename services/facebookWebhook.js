@@ -1,7 +1,7 @@
 import express from "express";
 import { getOpenAIResponse } from "./openai.js";
 import User from "../models/User.js";
-import Conversation from "../models/Conversation.js";
+import fetch from "node-fetch"; // ⬅️ Importar fetch
 
 const router = express.Router();
 
@@ -32,7 +32,7 @@ router.post("/", async (req, res) => {
     user = await User.create({ facebookId: senderId, name: "FBUser", email: "" });
   }
 
-  const userId = `fb_${senderId}`;
+  const userId = `fb_${senderId}`; // ✅ corrección
   const reply = await getOpenAIResponse(message, userId);
 
   await fetch(`https://graph.facebook.com/v18.0/me/messages?access_token=${process.env.FB_PAGE_TOKEN}`, {
