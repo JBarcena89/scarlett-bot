@@ -13,9 +13,15 @@ const openai = new OpenAI({
 
 const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { webHook: true });
 
-// Configura el webhook dinámicamente con tu URL de Render
-const URL = process.env.BASE_URL || "https://TU_DOMINIO_RENDER.com";
-bot.setWebHook(`${URL}/telegram/webhook`);
+// Usa la URL de tu dominio de Render
+const URL = process.env.DOMAIN || "https://TU_DOMINIO_RENDER.com";
+
+// Espera unos segundos para asegurarte que Render ya habilitó el dominio
+setTimeout(() => {
+  bot.setWebHook(`${URL}/telegram/webhook`)
+    .then(() => console.log("✅ Webhook de Telegram registrado"))
+    .catch(err => console.error("❌ Error registrando webhook:", err.message));
+}, 5000);
 
 bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
