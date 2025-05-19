@@ -1,8 +1,18 @@
-let userId = null;
-let userName = "";
-let userEmail = "";
+async function loadChatHistory(email) {
+  try {
+    const res = await fetch(`/chat/history/${email}`);
+    const history = await res.json();
 
-function startChat() {
+    history.forEach((msg) => {
+      const sender = msg.sender === "user" ? "Tú" : "Scarlett";
+      appendMessage(sender, msg.message);
+    });
+  } catch (error) {
+    console.error("Error cargando historial:", error);
+  }
+}
+
+async function startChat() {
   userName = document.getElementById("name").value.trim();
   userEmail = document.getElementById("email").value.trim();
 
@@ -20,61 +30,6 @@ function startChat() {
   document.getElementById("chat-screen").style.display = "block";
 
   appendMessage("Scarlett", `Hola ${userName}, ya estoy aquí 😘 ¿Qué quieres hacer hoy?`);
-}
 
-function sendMessage() {
-  const input = document.getElementById("user-input");
-  const message = input.value.trim();
-  if (!message) return;
-
-  appendMessage("Tú", message);
-  input.value = "";
-  showTyping();
-
-  fetch("/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      userId: localStorage.getItem("userId"),
-      message,
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      setTimeout(() => {
-        hideTyping();
-        appendMessage("Scarlett", data.response);
-      }, 3000);
-    })
-    .catch((err) => {
-      hideTyping();
-      appendMessage("Scarlett", "Ups, amor... algo falló 😢");
-      console.error(err);
-    });
-}
-
-function appendMessage(sender, message) {
-  const chatBox = document.getElementById("chat-box");
-  const div = document.createElement("div");
-  div.classList.add("message");
-  div.innerHTML = `<strong>${sender}:</strong> ${message}`;
-  chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function showTyping() {
-  const chatBox = document.getElementById("chat-box");
-  const typingDiv = document.createElement("div");
-  typingDiv.id = "typing";
-  typingDiv.classList.add("message");
-  typingDiv.innerHTML = `<em>Scarlett está escribiendo...</em>`;
-  chatBox.appendChild(typingDiv);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function hideTyping() {
-  const typingDiv = document.getElementById("typing");
-  if (typingDiv) typingDiv.remove();
+  await loadChatHistory(userEmail); // <-- Cargar historial
 }
