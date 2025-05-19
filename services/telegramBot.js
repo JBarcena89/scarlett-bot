@@ -8,54 +8,56 @@ import Conversation from "../models/Conversation.js";
 dotenv.config();
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-function iniciarTelegramBot() {
-  const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { webHook: true });
 
-  bot.on("message", async (msg) => {
-    const chatId = msg.chat.id;
-    const text = msg.text;
+// Configura el webhook dinámicamente con tu URL de Render
+const URL = process.env.BASE_URL || "https://TU_DOMINIO_RENDER.com";
+bot.setWebHook(`${URL}/telegram/webhook`);
 
-    let user = await User.findOne({ telegramId: chatId.toString() });
-    if (!user) {
-      user = await User.create({
-        telegramId: chatId.toString(),
-        name: msg.from.first_name,
-        email: ""
-      });
-    }
+bot.on("message", async (msg) => {
+  const chatId = msg.chat.id;
+  const text = msg.text;
 
-    let conversation = await Conversation.findOne({ userId: user._id });
-    if (!conversation) {
-      conversation = await Conversation.create({
-        userId: user._id,
-        messages: []
-      });
-    }
-
-    conversation.messages.push({ sender: "user", message: text });
-    await conversation.save();
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: "Eres Scarlett, una novia tóxica-divertida, coqueta y sexy." },
-        ...conversation.messages.map((m) => ({
-          role: m.sender === "user" ? "user" : "assistant",
-          content: m.message
-        }))
-      ]
+  let user = await User.findOne({ telegramId: chatId.toString() });
+  if (!user) {
+    user = await User.create({
+      telegramId: chatId.toString(),
+      name: msg.from.first_name,
+      email: "",
     });
+  }
 
-    const reply = completion.choices[0].message.content;
+  let conversation = await Conversation.findOne({ userId: user._id });
+  if (!conversation) {
+    conversation = await Conversation.create({
+      userId: user._id,
+      messages: [],
+    });
+  }
 
-    conversation.messages.push({ sender: "bot", message: reply });
-    await conversation.save();
+  conversation.messages.push({ sender: "user", message: text });
+  await conversation.save();
 
-    bot.sendMessage(chatId, reply);
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4",
+    messages: [
+      { role: "system", content: "Eres Scarlett, una novia tóxica-divertida, coqueta y sexy." },
+      ...conversation.messages.map((m) => ({
+        role: m.sender === "user" ? "user" : "assistant",
+        content: m.message,
+      })),
+    ],
   });
-}
 
-export default iniciarTelegramBot;
+  const reply = completion.choices[0].message.content;
+
+  conversation.messages.push({ sender: "bot", message: reply });
+  await conversation.save();
+
+  bot.sendMessage(chatId, reply);
+});
+
+export default bot;
