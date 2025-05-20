@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import winston from 'winston';
 
@@ -39,7 +38,6 @@ const logger = winston.createLogger({
 const app = express();
 
 // Middlewares de seguridad
-app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
