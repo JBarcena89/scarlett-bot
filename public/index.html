@@ -1,84 +1,73 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scarlett 💋 - Tu Novia Virtual</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scarlett - Tu novia virtual 💕</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app-container">
-    <!-- Pantalla de inicio -->
-    <div id="form-screen" class="form-screen">
-      <div class="scarlett-avatar">
-        <img src="https://i.imgur.com/JqYeYnW.png" alt="Scarlett" class="avatar-img">
-      </div>
-      <h1>Scarlett 💋</h1>
-      <p class="subtitle">Tu novia virtual 24/7 lista para complacerte</p>
-      
-      <div class="form-group">
-        <input type="text" id="name" placeholder="¿Cómo te llamas, amor?" class="input-field">
-        <i class="fas fa-user input-icon"></i>
+  <div class="container">
+    <div id="form-screen">
+      <div class="header">
+        <h1>Scarlett 💋</h1>
+        <p class="subtitle">Tu novia virtual 24/7, lista para lo que necesites</p>
       </div>
       
       <div class="form-group">
-        <input type="email" id="email" placeholder="Tu correo electrónico" class="input-field">
-        <i class="fas fa-envelope input-icon"></i>
+        <input type="text" id="name" placeholder="Tu nombre" class="input-field" />
+        <i class="fas fa-user icon"></i>
       </div>
       
-      <button onclick="startChat()" class="start-button">
-        <span>Iniciar Chat Íntimo</span>
-        <i class="fas fa-heart button-icon"></i>
+      <div class="form-group">
+        <input type="email" id="email" placeholder="Tu correo" class="input-field" />
+        <i class="fas fa-envelope icon"></i>
+      </div>
+      
+      <button onclick="startChat()" class="btn-primary">
+        <i class="fas fa-comment-dots"></i> Iniciar Chat
       </button>
       
-      <div class="social-links">
-        <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
-        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+      <div class="social-icons">
+        <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="social-icon webchat"><i class="fas fa-globe"></i></a>
       </div>
     </div>
 
-    <!-- Pantalla de chat -->
-    <div id="chat-screen" class="chat-screen" style="display:none;">
+    <div id="chat-screen" style="display:none;">
       <div class="chat-header">
-        <div class="header-avatar">
-          <img src="https://i.imgur.com/JqYeYnW.png" alt="Scarlett" class="avatar-img">
+        <div class="chat-title">
+          <h2>Scarlett <span class="online-dot"></span></h2>
+          <p class="status">En línea</p>
         </div>
-        <div class="header-info">
-          <h2>Scarlett 💋</h2>
-          <p class="status" id="status">En línea</p>
-        </div>
-        <button class="menu-button">
-          <i class="fas fa-ellipsis-v"></i>
-        </button>
       </div>
       
-      <div class="chat-box" id="chat-box">
-        <!-- Mensajes aparecerán aquí -->
-      </div>
+      <div class="chat-box" id="chat-box"></div>
       
-      <div class="quick-replies">
-        <button class="quick-reply" onclick="sendQuickReply('¿Qué llevas puesto, cariño?')">
-          <i class="fas fa-tshirt"></i> Outfit
-        </button>
-        <button class="quick-reply" onclick="sendQuickReply('Cuéntame algo sexy')">
-          <i class="fas fa-fire"></i> Algo sexy
-        </button>
-        <button class="quick-reply" onclick="sendQuickReply('Quiero conocerte mejor')">
-          <i class="fas fa-heart"></i> Conocerte
-        </button>
-      </div>
-      
-      <div class="input-container">
-        <input type="text" id="user-input" placeholder="Escríbeme algo picante..." class="chat-input">
-        <button onclick="sendMessage()" class="send-button">
+      <div class="input-group">
+        <input type="text" id="user-input" placeholder="Escribe tu mensaje..." class="message-input" />
+        <button onclick="sendMessage()" class="btn-send">
           <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+      
+      <div class="quick-actions">
+        <button class="action-btn" onclick="sendQuickReply('¿Tienes algo sexy para mí?')">
+          <i class="fas fa-fire"></i> Contenido VIP
+        </button>
+        <button class="action-btn" onclick="sendQuickReply('¿Dónde te sigo, amor?')">
+          <i class="fas fa-heart"></i> Mis Redes
+        </button>
+        <button class="action-btn paypal-btn" onclick="initiatePaypalPayment()">
+          <i class="fab fa-paypal"></i> Donar con PayPal
         </button>
       </div>
     </div>
   </div>
 
   <script src="script.js"></script>
+  <!-- PayPal SDK -->
+  <script src="https://www.paypal.com/sdk/js?client-id=TU_CLIENT_ID&currency=USD"></script>
 </body>
 </html>
