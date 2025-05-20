@@ -10,7 +10,6 @@ import winston from 'winston';
 // Importación de rutas
 import webchatRoutes from './routes/webchat.js';
 import telegramRoutes from './routes/telegram.js';
-import whatsappRoutes from './routes/whatsapp.js';  // Nueva ruta WhatsApp
 import adminRoutes from './routes/admin.js';
 
 // Configuración inicial
@@ -58,7 +57,6 @@ app.use(limiter);
 // Configuración de rutas
 app.use('/chat', webchatRoutes);
 app.use('/telegram', telegramRoutes);
-app.use('/whatsapp', whatsappRoutes);  // Ruta WhatsApp
 app.use('/admin', adminRoutes);
 
 // Ruta principal
@@ -66,15 +64,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Conexión a MongoDB con manejo de errores
+// Conexión a MongoDB optimizada (sin opciones obsoletas)
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      retryWrites: true,
-      w: 'majority'
-    });
+    await mongoose.connect(process.env.MONGODB_URI);
     logger.info('✅ Conectado a MongoDB');
   } catch (err) {
     logger.error('❌ Error de conexión a MongoDB:', err);
@@ -91,35 +84,35 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Iniciar servidor
-const PORT = process.env.PORT || 3000;
+// Iniciar servidor con manejo de puerto
 const startServer = async () => {
   await connectDB();
   
-  app.listen(PORT, () => {
+  const PORT = process.env.PORT || 3000;
+  const server = app.listen(PORT, () => {
     logger.info(`🚀 Servidor escuchando en el puerto ${PORT}`);
     logger.info(`🔗 URL: ${process.env.DOMAIN || `http://localhost:${PORT}`}`);
     
     // Verificar variables de entorno críticas
-    const requiredVars = ['MONGODB_URI', 'OPENAI_API_KEY', 'TELEGRAM_BOT_TOKEN'];
+    const requiredVars = ['MONGODB_URI', 'OPENAI_API_KEY'];
     requiredVars.forEach(varName => {
       logger.info(`🔧 ${varName}: ${process.env[varName] ? '✅ configurada' : '❌ faltante'}`);
     });
-    
-    // Verificar integraciones opcionales
-    if (process.env.WHATSAPP_TOKEN) {
-      logger.info('🔧 WhatsApp: ✅ integración configurada');
-    } else {
-      logger.warn('🔧 WhatsApp: ⚠️ integración no configurada');
-    }
+  });
+
+  // Manejo de cierre limpio
+  process.on('SIGTERM', () => {
+    logger.info('🛑 Recibido SIGTERM. Cerrando servidor...');
+    server.close(() => {
+      mongoose.connection.close(false, () => {
+        logger.info('🛑 Servidor y conexión a MongoDB cerrados');
+        process.exit(0);
+      });
+    });
   });
 };
 
-startServer();
-
-// Manejo de cierre limpio
-process.on('SIGINT', async () => {
-  await mongoose.connection.close();
-  logger.info('🛑 Servidor detenido correctamente');
-  process.exit(0);
+startServer().catch(err => {
+  logger.error('Error al iniciar el servidor:', err);
+  process.exit(1);
 });
