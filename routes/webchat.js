@@ -1,43 +1,62 @@
 import express from "express";
+import { getOpenAIResponse } from "../services/openai.js";
 import User from "../models/User.js";
-import Conversation from "../models/Conversation.js"; // Asegúrate de importar esto
-import { getOpenAIResponse } from "../services/openai.js"; // Corrige el path
+import Conversation from "../models/Conversation.js";
 
 const router = express.Router();
 
-// Guardar mensaje y responder
 router.post("/", async (req, res) => {
-  const { name, email, message } = req.body;
+  try {
+    const { name, email, message } = req.body;
+    
+    if (!name || !email || !message) {
+      return res.status(400).json({ error: "Faltan datos requeridos" });
+    }
 
-  if (!name || !email || !message) {
-    return res.status(400).json({ error: "Faltan datos" });
+    let user = await User.findOneAndUpdate(
+      { email },
+      { $setOnInsert: { name, email, createdAt: new Date() } },
+      { upsert: true, new: true }
+    );
+
+    const userId = `web_${email}`;
+    const reply = await getOpenAIResponse(message, userId);
+
+    await Conversation.findOneAndUpdate(
+      { userId },
+      {
+        $push: {
+          messages: {
+            $each: [
+              { role: "user", content: message },
+              { role: "assistant", content: reply }
+            ]
+          }
+        }
+      },
+      { upsert: true }
+    );
+
+    res.json({ response: reply });
+  } catch (error) {
+    console.error("Error en webchat:", error);
+    res.status(500).json({ error: "Error al procesar tu mensaje" });
   }
-
-  let user = await User.findOne({ email });
-  if (!user) {
-    user = await User.create({ name, email });
-  }
-
-  const userId = `web_${email}`;
-  const reply = await getOpenAIResponse(message, userId);
-
-  // Guardar mensajes
-  await Conversation.create({ userId, sender: "user", message });
-  await Conversation.create({ userId, sender: "scarlett", message: reply });
-
-  res.json({ response: reply });
 });
 
-// Obtener historial
 router.get("/history/:email", async (req, res) => {
-  const email = req.params.email;
-  const userId = `web_${email}`;
-
   try {
-    const history = await Conversation.find({ userId }).sort({ timestamp: 1 });
-    res.json(history);
+    const email = req.params.email;
+    const userId = `web_${email}`;
+    const conversation = await Conversation.findOne({ userId });
+    
+    if (!conversation) {
+      return res.json([]);
+    }
+
+    res.json(conversation.messages);
   } catch (err) {
-    console.error(err);
+    console.error("Error al cargar historial:", err);
     res.status(500).json({ error: "Error al cargar historial" });
   }
 });
