@@ -13,15 +13,22 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Faltan datos requeridos" });
     }
 
-    let user = await User.findOneAndUpdate(
+    // Validación mejorada de email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: "Email inválido" });
+    }
+
+    // Crear o actualizar usuario sin índices problemáticos
+    const user = await User.findOneAndUpdate(
       { email },
-      { $setOnInsert: { name, email, createdAt: new Date() } },
+      { name, $setOnInsert: { createdAt: new Date() } },
       { upsert: true, new: true }
     );
 
-    const userId = `web_${email}`;
+    const userId = `web_${user._id}`; // Usar el ID de MongoDB directamente
     const reply = await getOpenAIResponse(message, userId);
 
+    // Guardar mensaje en la conversación
     await Conversation.findOneAndUpdate(
       { userId },
       {
@@ -30,7 +37,8 @@ router.post("/", async (req, res) => {
             $each: [
               { role: "user", content: message },
               { role: "assistant", content: reply }
-            ]
+            ],
+            $slice: -50 // Limitar a los últimos 50 mensajes
           }
         }
       },
@@ -40,25 +48,11 @@ router.post("/", async (req, res) => {
     res.json({ response: reply });
   } catch (error) {
     console.error("Error en webchat:", error);
-    res.status(500).json({ error: "Error al procesar tu mensaje" });
+    res.status(500).json({ 
+      error: "Disculpa cariño, estoy teniendo problemas técnicos. Inténtalo de nuevo más tarde 😘",
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
-router.get("/history/:email", async (req, res) => {
-  try {
-    const email = req.params.email;
-    const userId = `web_${email}`;
-    const conversation = await Conversation.findOne({ userId });
-    
-    if (!conversation) {
-      return res.json([]);
-    }
-
-    res.json(conversation.messages);
-  } catch (err) {
-    console.error("Error al cargar historial:", err);
-    res.status(500).json({ error: "Error al cargar historial" });
-  }
-});
-
-export default router;
+// ... resto del código ...
