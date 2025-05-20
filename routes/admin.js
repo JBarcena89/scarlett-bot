@@ -1,31 +1,31 @@
-// routes/admin.js
 import express from "express";
 import Click from "../models/Click.js";
+import User from "../models/User.js";
+import Conversation from "../models/Conversation.js";
 
 const router = express.Router();
 
-const BASIC_USER = process.env.ADMIN_USER;
-const BASIC_PASS = process.env.ADMIN_PASS;
-
-router.use((req, res, next) => {
+const authMiddleware = (req, res, next) => {
   const auth = req.headers.authorization;
-
+  
   if (!auth || !auth.startsWith("Basic ")) {
-    res.setHeader("WWW-Authenticate", 'Basic realm="Admin Area"');
-    return res.status(401).send("Authentication required.");
+    res.setHeader('WWW-Authenticate', 'Basic realm="Admin Area", charset="UTF-8"');
+    return res.status(401).send('Autenticación requerida');
   }
 
-  const base64Credentials = auth.split(" ")[1];
-  const credentials = Buffer.from(base64Credentials, "base64").toString("ascii");
-  const [username, password] = credentials.split(":");
+  const base64Credentials = auth.split(' ')[1];
+  const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+  const [username, password] = credentials.split(':');
 
-  if (username === BASIC_USER && password === BASIC_PASS) {
+  if (username === process.env.ADMIN_USER && password === process.env.ADMIN_PASS) {
     return next();
   }
 
-  res.setHeader("WWW-Authenticate", 'Basic realm="Admin Area"');
-  return res.status(401).send("Invalid credentials.");
-});
+  res.setHeader('WWW-Authenticate', 'Basic realm="Admin Area", charset="UTF-8"');
+  return res.status(401).send('Credenciales inválidas');
+};
+
+router.use(authMiddleware);
 
 router.get("/", (req, res) => {
   res.sendFile("admin.html", { root: "./public" });
@@ -33,18 +33,28 @@ router.get("/", (req, res) => {
 
 router.get("/stats", async (req, res) => {
   try {
-    const clicks = await Click.find({});
-    const stats = {};
+    const [clicks, users, conversations] = await Promise.all([
+      Click.find({}),
+      User.countDocuments(),
+      Conversation.countDocuments()
+    ]);
+
+    const buttonStats = {};
+    const platformStats = {};
     const uniqueUsers = new Set();
 
     clicks.forEach((click) => {
-      stats[click.button] = (stats[click.button] || 0) + 1;
+      buttonStats[click.button] = (buttonStats[click.button] || 0) + 1;
+      platformStats[click.platform] = (platformStats[click.platform] || 0) + 1;
       uniqueUsers.add(click.userId);
     });
 
     res.json({
-      stats,
-      uniqueUsers: uniqueUsers.size,
+      buttons: buttonStats,
+      platforms: platformStats,
+      totalUsers: users,
+      activeUsers: uniqueUsers.size,
+      totalConversations: conversations
     });
   } catch (err) {
     console.error("Error obteniendo estadísticas:", err);
