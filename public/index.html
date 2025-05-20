@@ -1,33 +1,84 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scarlett - Tu novia virtual 💕</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scarlett 💋 - Tu Novia Virtual</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="form-screen">
-    <h2>Scarlett 💖</h2>
-    <p>Tu novia 24/7, estoy para ti para lo que necesites 😘</p>
-    <input type="text" id="name" placeholder="Tu nombre" />
-    <input type="email" id="email" placeholder="Tu correo" />
-    <button onclick="startChat()">Iniciar Chat</button>
-  </div>
+  <div class="app-container">
+    <!-- Pantalla de inicio -->
+    <div id="form-screen" class="form-screen">
+      <div class="scarlett-avatar">
+        <img src="https://i.imgur.com/JqYeYnW.png" alt="Scarlett" class="avatar-img">
+      </div>
+      <h1>Scarlett 💋</h1>
+      <p class="subtitle">Tu novia virtual 24/7 lista para complacerte</p>
+      
+      <div class="form-group">
+        <input type="text" id="name" placeholder="¿Cómo te llamas, amor?" class="input-field">
+        <i class="fas fa-user input-icon"></i>
+      </div>
+      
+      <div class="form-group">
+        <input type="email" id="email" placeholder="Tu correo electrónico" class="input-field">
+        <i class="fas fa-envelope input-icon"></i>
+      </div>
+      
+      <button onclick="startChat()" class="start-button">
+        <span>Iniciar Chat Íntimo</span>
+        <i class="fas fa-heart button-icon"></i>
+      </button>
+      
+      <div class="social-links">
+        <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
+        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+      </div>
+    </div>
 
-  <div id="chat-screen" style="display:none;">
-    <div class="chat-box" id="chat-box"></div>
-    <input type="text" id="user-input" placeholder="Escríbeme algo..." />
-    <button onclick="sendMessage()">Enviar</button>
-
-    <div class="chat-buttons">
-      <button class="chat-button" onclick="sendQuickReply('¿Tienes algo sexy para mí?')">Contenido VIP 🔥</button>
-      <button class="chat-button" onclick="sendQuickReply('¿Dónde te sigo, amor?')">Mis Redes 💋</button>
-      <button class="chat-button" onclick="sendQuickReply('Quiero unirme a tu canal')">Mi Canal 📲</button>
+    <!-- Pantalla de chat -->
+    <div id="chat-screen" class="chat-screen" style="display:none;">
+      <div class="chat-header">
+        <div class="header-avatar">
+          <img src="https://i.imgur.com/JqYeYnW.png" alt="Scarlett" class="avatar-img">
+        </div>
+        <div class="header-info">
+          <h2>Scarlett 💋</h2>
+          <p class="status" id="status">En línea</p>
+        </div>
+        <button class="menu-button">
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+      </div>
+      
+      <div class="chat-box" id="chat-box">
+        <!-- Mensajes aparecerán aquí -->
+      </div>
+      
+      <div class="quick-replies">
+        <button class="quick-reply" onclick="sendQuickReply('¿Qué llevas puesto, cariño?')">
+          <i class="fas fa-tshirt"></i> Outfit
+        </button>
+        <button class="quick-reply" onclick="sendQuickReply('Cuéntame algo sexy')">
+          <i class="fas fa-fire"></i> Algo sexy
+        </button>
+        <button class="quick-reply" onclick="sendQuickReply('Quiero conocerte mejor')">
+          <i class="fas fa-heart"></i> Conocerte
+        </button>
+      </div>
+      
+      <div class="input-container">
+        <input type="text" id="user-input" placeholder="Escríbeme algo picante..." class="chat-input">
+        <button onclick="sendMessage()" class="send-button">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
     </div>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
-<!-- public/index.html -->
