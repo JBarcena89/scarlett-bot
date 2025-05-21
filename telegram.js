@@ -1,36 +1,47 @@
-// telegram.js
-const fetch = require('node-fetch');
+const express = require('express');
+const router = express.Router();
+const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
+const fetch = require('node-fetch');
 
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
+const chatHistories = {};
 
-// Función para enviar un mensaje de Scarlett a Telegram
-async function sendToTelegram(message) {
-  if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
-    console.error('Faltan TELEGRAM_TOKEN o TELEGRAM_CHAT_ID en el archivo .env');
-    return;
-  }
+module.exports = (app) => {
+  bot.on('message', async (msg) => {
+    const chatId = msg.chat.id;
+    const userMessage = msg.text;
 
-  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: 'HTML'
-      })
-    });
-
-    if (!response.ok) {
-      console.error('Error al enviar mensaje a Telegram:', await response.text());
+    if (!chatHistories[chatId]) {
+      chatHistories[chatId] = [];
     }
-  } catch (error) {
-    console.error('Error de conexión con Telegram:', error);
-  }
-}
 
-module.exports = { sendToTelegram };
+    chatHistories[chatId].push({ role: 'user', content: userMessage });
+
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4',
+          messages: chatHistories[chatId]
+        })
+      });
+
+      const data = await response.json();
+      const botReply = data.choices[0].message.content;
+
+      chatHistories[chatId].push({ role: 'assistant', content: botReply });
+
+      bot.sendMessage(chatId, botReply);
+    } catch (error) {
+      console.error('Error fetching OpenAI response:', error);
+      bot.sendMessage(chatId, 'Oops, algo salió mal. Inténtalo de nuevo más tarde.');
+    }
+  });
+
+  app.use('/telegram', router);
+};
