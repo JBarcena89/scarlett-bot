@@ -4,7 +4,7 @@ const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
 const fetch = require('node-fetch');
 
-const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true });
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, { polling: true });
 const chatHistories = {};
 
 module.exports = (app) => {
