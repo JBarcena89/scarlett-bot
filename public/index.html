@@ -1,73 +1,29 @@
+<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scarlett - Tu novia virtual 💕</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>Scarlett 💋</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <div id="form-screen">
-      <div class="header">
-        <h1>Scarlett 💋</h1>
-        <p class="subtitle">Tu novia virtual 24/7, lista para lo que necesites</p>
-      </div>
-      
-      <div class="form-group">
-        <input type="text" id="name" placeholder="Tu nombre" class="input-field" />
-        <i class="fas fa-user icon"></i>
-      </div>
-      
-      <div class="form-group">
-        <input type="email" id="email" placeholder="Tu correo" class="input-field" />
-        <i class="fas fa-envelope icon"></i>
-      </div>
-      
-      <button onclick="startChat()" class="btn-primary">
-        <i class="fas fa-comment-dots"></i> Iniciar Chat
-      </button>
-      
-      <div class="social-icons">
-        <a href="#" class="social-icon instagram"><i class="fab fa-instagram"></i></a>
-        <a href="#" class="social-icon webchat"><i class="fas fa-globe"></i></a>
-      </div>
+  <div class="chat-container">
+    <div class="chat-header">Scarlett 💖 - Tu novia virtual 24/7</div>
+    <div class="chat-messages" id="chat-messages"></div>
+
+    <div class="chat-input">
+      <input type="text" id="user-input" placeholder="Escribe algo, amor..." />
+      <button onclick="sendMessage()">Enviar</button>
     </div>
 
-    <div id="chat-screen" style="display:none;">
-      <div class="chat-header">
-        <div class="chat-title">
-          <h2>Scarlett <span class="online-dot"></span></h2>
-          <p class="status">En línea</p>
-        </div>
-      </div>
-      
-      <div class="chat-box" id="chat-box"></div>
-      
-      <div class="input-group">
-        <input type="text" id="user-input" placeholder="Escribe tu mensaje..." class="message-input" />
-        <button onclick="sendMessage()" class="btn-send">
-          <i class="fas fa-paper-plane"></i>
-        </button>
-      </div>
-      
-      <div class="quick-actions">
-        <button class="action-btn" onclick="sendQuickReply('¿Tienes algo sexy para mí?')">
-          <i class="fas fa-fire"></i> Contenido VIP
-        </button>
-        <button class="action-btn" onclick="sendQuickReply('¿Dónde te sigo, amor?')">
-          <i class="fas fa-heart"></i> Mis Redes
-        </button>
-        <button class="action-btn paypal-btn" onclick="initiatePaypalPayment()">
-          <i class="fab fa-paypal"></i> Donar con PayPal
-        </button>
-      </div>
+    <div class="chat-buttons">
+      <button onclick="sendQuickReply('Contenido VIP')">Contenido VIP</button>
+      <button onclick="sendQuickReply('Mi Canal')">Mi Canal</button>
+      <button onclick="sendQuickReply('Mis Redes')">Mis Redes</button>
     </div>
   </div>
 
   <script src="script.js"></script>
-  <!-- PayPal SDK -->
-  <script src="https://www.paypal.com/sdk/js?client-id=TU_CLIENT_ID&currency=USD"></script>
 </body>
 </html>
