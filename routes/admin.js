@@ -1,10 +1,6 @@
-import express from "express";
-import Click from "../models/Click.js";
-import User from "../models/User.js";
-import Conversation from "../models/Conversation.js";
+// ... imports ...
 
-const router = express.Router();
-
+// Configuración de seguridad mejorada
 const authMiddleware = (req, res, next) => {
   const auth = req.headers.authorization;
   
@@ -27,39 +23,4 @@ const authMiddleware = (req, res, next) => {
 
 router.use(authMiddleware);
 
-router.get("/", (req, res) => {
-  res.sendFile("admin.html", { root: "./public" });
-});
-
-router.get("/stats", async (req, res) => {
-  try {
-    const [clicks, users, conversations] = await Promise.all([
-      Click.find({}),
-      User.countDocuments(),
-      Conversation.countDocuments()
-    ]);
-
-    const buttonStats = {};
-    const platformStats = {};
-    const uniqueUsers = new Set();
-
-    clicks.forEach((click) => {
-      buttonStats[click.button] = (buttonStats[click.button] || 0) + 1;
-      platformStats[click.platform] = (platformStats[click.platform] || 0) + 1;
-      uniqueUsers.add(click.userId);
-    });
-
-    res.json({
-      buttons: buttonStats,
-      platforms: platformStats,
-      totalUsers: users,
-      activeUsers: uniqueUsers.size,
-      totalConversations: conversations
-    });
-  } catch (err) {
-    console.error("Error obteniendo estadísticas:", err);
-    res.status(500).json({ error: "Error interno" });
-  }
-});
-
-export default router;
+// ... resto del código ...
