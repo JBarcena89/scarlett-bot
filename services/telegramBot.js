@@ -1,26 +1,48 @@
 // ... imports ...
 
-// Configurar webhook inmediatamente sin timeout
-bot.setWebHook(`${URL}/telegram/webhook`)
-  .then(() => console.log("✅ Webhook de Telegram registrado"))
-  .catch(err => console.error("❌ Error registrando webhook:", err));
+// Configuración mejorada del bot
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN, {
+  webHook: true,
+  polling: process.env.NODE_ENV !== 'production' // Solo polling en desarrollo
+});
 
-// Manejo mejorado de errores
+// Configurar webhook inmediatamente
+bot.setWebHook(`${process.env.DOMAIN}/telegram/webhook`)
+  .then(() => console.log("✅ Webhook de Telegram configurado correctamente"))
+  .catch(err => console.error("❌ Error configurando webhook:", err));
+
+// Manejo mejorado de mensajes
 bot.on("message", async (msg) => {
+  const chatId = msg.chat.id;
+  
   try {
-    if (!msg.text || msg.text.length > 500) {
-      return bot.sendMessage(msg.chat.id, "Lo siento cariño, solo puedo procesar mensajes de hasta 500 caracteres 😘");
-    }
+    // Indicar que está escribiendo
+    await bot.sendChatAction(chatId, "typing");
+    
+    // Retardo artificial de 3-5 segundos
+    await new Promise(resolve => setTimeout(resolve, 3000 + Math.random() * 2000));
+    
+    // Resto de la lógica de procesamiento...
+    const text = msg.text;
+    let user = await User.findOneAndUpdate(
+      { telegramId: chatId.toString() },
+      { 
+        $setOnInsert: { 
+          telegramId: chatId.toString(),
+          name: msg.from.first_name || "Usuario",
+          email: ""
+        }
+      },
+      { upsert: true, new: true }
+    );
 
-    // ... resto de la lógica ...
+    // ... resto del código de procesamiento ...
+
+    // Enviar respuesta
+    await bot.sendMessage(chatId, reply);
     
   } catch (error) {
     console.error("Error en Telegram:", error);
-    bot.sendMessage(msg.chat.id, "Ups, algo salió mal. Inténtalo de nuevo, cariño 😘");
+    await bot.sendMessage(chatId, "Ups, algo salió mal. Inténtalo de nuevo más tarde, cariño 😘");
   }
-});
-
-// Manejar comandos específicos
-bot.onText(/\/start/, (msg) => {
-  bot.sendMessage(msg.chat.id, "Hola amorcito 😘 Soy Scarlett, tu novia virtual. ¿En qué puedo ayudarte hoy?");
 });
