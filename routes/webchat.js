@@ -13,6 +13,11 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Faltan datos requeridos" });
     }
 
+    // Validar formato de email
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      return res.status(400).json({ error: "Email inválido" });
+    }
+
     let user = await User.findOneAndUpdate(
       { email },
       { $setOnInsert: { name, email, createdAt: new Date() } },
@@ -22,6 +27,7 @@ router.post("/", async (req, res) => {
     const userId = `web_${email}`;
     const reply = await getOpenAIResponse(message, userId);
 
+    // Guardar en la conversación
     await Conversation.findOneAndUpdate(
       { userId },
       {
@@ -44,21 +50,4 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/history/:email", async (req, res) => {
-  try {
-    const email = req.params.email;
-    const userId = `web_${email}`;
-    const conversation = await Conversation.findOne({ userId });
-    
-    if (!conversation) {
-      return res.json([]);
-    }
-
-    res.json(conversation.messages);
-  } catch (err) {
-    console.error("Error al cargar historial:", err);
-    res.status(500).json({ error: "Error al cargar historial" });
-  }
-});
-
-export default router;
+// ... resto del código ...
