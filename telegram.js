@@ -1,5 +1,3 @@
-const express = require('express');
-const router = express.Router();
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
 const fetch = require('node-fetch');
@@ -12,9 +10,7 @@ module.exports = (app) => {
     const chatId = msg.chat.id;
     const userMessage = msg.text;
 
-    if (!chatHistories[chatId]) {
-      chatHistories[chatId] = [];
-    }
+    if (!chatHistories[chatId]) chatHistories[chatId] = [];
 
     chatHistories[chatId].push({ role: 'user', content: userMessage });
 
@@ -27,21 +23,18 @@ module.exports = (app) => {
         },
         body: JSON.stringify({
           model: 'gpt-4',
-          messages: chatHistories[chatId]
+          messages: chatHistories[chatId],
+          temperature: 0.8
         })
       });
 
       const data = await response.json();
-      const botReply = data.choices[0].message.content;
-
-      chatHistories[chatId].push({ role: 'assistant', content: botReply });
-
-      bot.sendMessage(chatId, botReply);
+      const reply = data.choices[0].message.content;
+      chatHistories[chatId].push({ role: 'assistant', content: reply });
+      bot.sendMessage(chatId, reply);
     } catch (error) {
-      console.error('Error fetching OpenAI response:', error);
-      bot.sendMessage(chatId, 'Oops, algo salió mal. Inténtalo de nuevo más tarde.');
+      console.error('Error:', error);
+      bot.sendMessage(chatId, 'Oops, amor... algo salió mal. Intenta otra vez 💔.');
     }
   });
-
-  app.use('/telegram', router);
 };
