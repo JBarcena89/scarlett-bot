@@ -1,26 +1,26 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Scarlett 💋</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="chat-container">
-    <div class="chat-header">Scarlett 💖 - Tu novia virtual 24/7</div>
-    <div class="chat-messages" id="chat-messages"></div>
+    <h1>Scarlett 💋 Tu novia virtual 24/7</h1>
+    <form id="user-form">
+      <input type="text" id="name" placeholder="Tu nombre" required />
+      <input type="email" id="email" placeholder="Tu correo" required />
+      <button type="submit">Entrar</button>
+    </form>
 
-    <div class="chat-input">
-      <input type="text" id="user-input" placeholder="Escribe algo, amor..." />
-      <button onclick="sendMessage()">Enviar</button>
-    </div>
-
-    <div class="chat-buttons">
-      <button onclick="sendQuickReply('Contenido VIP')">Contenido VIP</button>
-      <button onclick="sendQuickReply('Mi Canal')">Mi Canal</button>
-      <button onclick="sendQuickReply('Mis Redes')">Mis Redes</button>
+    <div id="chat-box" class="hidden">
+      <div id="chat-messages"></div>
+      <form id="chat-form">
+        <input type="text" id="message" placeholder="Escríbeme algo, amor..." required />
+        <button type="submit">Enviar</button>
+      </form>
     </div>
   </div>
 
