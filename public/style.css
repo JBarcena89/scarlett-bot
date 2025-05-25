@@ -1,98 +1,69 @@
 body {
   font-family: 'Segoe UI', sans-serif;
-  background: #ffe4ec;
+  background: #fce4ec;
   margin: 0;
   padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
 }
 
-#user-form {
+.chat-container {
+  max-width: 600px;
+  margin: 40px auto;
+  background: #fff0f5;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1 {
   text-align: center;
-}
-
-input {
-  padding: 10px;
-  margin: 5px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-}
-
-button {
-  background-color: #ff69b4;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 25px;
-  cursor: pointer;
-  margin: 5px;
-}
-
-button:hover {
-  background-color: #e85ca0;
-}
-
-#chat-container {
-  width: 90%;
-  max-width: 400px;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 0 10px #ffb6c1;
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
+  color: #d81b60;
 }
 
 #chat-box {
-  flex: 1;
-  padding: 10px;
+  height: 300px;
   overflow-y: auto;
-  max-height: 400px;
-}
-
-.message {
-  padding: 8px 15px;
-  margin: 8px 0;
-  border-radius: 20px;
-  max-width: 75%;
-  line-height: 1.4;
-}
-
-.message.user {
-  background-color: #ffb6c1;
-  align-self: flex-end;
-  text-align: right;
-}
-
-.message.assistant {
-  background-color: #f1f1f1;
-  align-self: flex-start;
-}
-
-.typing {
-  font-style: italic;
-  opacity: 0.7;
-}
-
-#input-area {
-  display: flex;
+  border: 1px solid #f8bbd0;
   padding: 10px;
-  border-top: 1px solid #eee;
+  margin-bottom: 15px;
+  background: #fff;
+  border-radius: 8px;
 }
 
-#user-input {
-  flex: 1;
+#chat-box p {
+  margin: 5px 0;
+}
+
+form input, form textarea {
+  width: 100%;
+  margin-bottom: 10px;
   padding: 10px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-  margin-right: 10px;
+  border: 1px solid #f8bbd0;
+  border-radius: 6px;
+  font-size: 14px;
 }
 
-.button-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
+form button {
+  width: 100%;
+  padding: 10px;
+  background: #d81b60;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+form button:hover {
+  background: #c2185b;
+}
+
+.donate {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.donate a {
+  text-decoration: none;
+  color: #d81b60;
+  font-weight: bold;
 }
