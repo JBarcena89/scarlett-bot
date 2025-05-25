@@ -1,86 +1,100 @@
-let userName = '';
-let userEmail = '';
+document.addEventListener('DOMContentLoaded', () => {
+  const chatBox = document.getElementById('chat-box');
+  const userInput = document.getElementById('user-input');
+  const sendButton = document.getElementById('send-button');
+  const userNameInput = document.getElementById('user-name');
+  const userEmailInput = document.getElementById('user-email');
+  const userForm = document.getElementById('user-form');
+  const chatContainer = document.getElementById('chat-container');
 
-const loginForm = document.getElementById('login-form');
-const chatSection = document.getElementById('chat-section');
-const chatForm = document.getElementById('chat-form');
-const chatbox = document.getElementById('chatbox');
-const userInput = document.getElementById('user-input');
-const typingIndicator = document.getElementById('typing');
+  let userName = '';
+  let userEmail = '';
 
-loginForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  userName = document.getElementById('name').value;
-  userEmail = document.getElementById('email').value;
-  loginForm.style.display = 'none';
-  chatSection.style.display = 'block';
-  appendMessage('bot', `Hola ${userName} 💖... Qué rico tenerte aquí. ¿Listo para jugar y conocernos más profundamente? 😘`);
-});
+  function addMessage(sender, text) {
+    const message = document.createElement('div');
+    message.classList.add('message', sender);
+    message.textContent = text;
+    chatBox.appendChild(message);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
 
-chatForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const message = userInput.value.trim();
-  if (message === '') return;
+  function addTyping() {
+    const typing = document.createElement('div');
+    typing.classList.add('message', 'assistant', 'typing');
+    typing.textContent = 'Scarlett está escribiendo...';
+    chatBox.appendChild(typing);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
 
-  appendMessage('user', message);
-  userInput.value = '';
-  typingIndicator.style.display = 'block';
+  function removeTyping() {
+    const typing = document.querySelector('.typing');
+    if (typing) typing.remove();
+  }
 
-  try {
-    const res = await fetch('/webchat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: userName,
-        email: userEmail,
-        message: message
-      })
+  function addButtons() {
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add('button-container');
+
+    const buttons = [
+      { text: '💎 Contenido VIP', url: 'https://tu-vip-link.com' },
+      { text: '📢 Mi Canal', url: 'https://t.me/tu_canal' },
+      { text: '💖 Mis Redes', url: 'https://linktr.ee/ScarlettBot' },
+      { text: '💸 Donaciones', url: 'https://paypal.me/tuenlace' }
+    ];
+
+    buttons.forEach(btn => {
+      const button = document.createElement('button');
+      button.textContent = btn.text;
+      button.onclick = () => {
+        addMessage('user', btn.text);
+        addTyping();
+        setTimeout(() => {
+          removeTyping();
+          addMessage('assistant', `Aquí tienes, amor 💕: ${btn.url}`);
+          window.open(btn.url, '_blank');
+        }, 2000 + Math.random() * 3000);
+      };
+      buttonContainer.appendChild(button);
     });
 
-    const data = await res.json();
-    setTimeout(() => {
-      typingIndicator.style.display = 'none';
-      appendMessage('bot', data.reply);
-    }, 3000); // Simula 3 segundos "escribiendo..."
-  } catch (error) {
-    typingIndicator.style.display = 'none';
-    appendMessage('bot', 'Ups... algo falló. Pero no te preocupes, amor, vuelve a intentarlo. 💋');
+    chatBox.appendChild(buttonContainer);
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
+
+  userForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    userName = userNameInput.value.trim();
+    userEmail = userEmailInput.value.trim();
+
+    if (userName && userEmail) {
+      userForm.style.display = 'none';
+      chatContainer.style.display = 'flex';
+      addMessage('assistant', `Hola ${userName} 💋, soy Scarlett, tu novia virtual. Estoy aquí para ti 24/7. ¿En qué estás pensando ahora, bebé?`);
+      addButtons();
+    }
+  });
+
+  sendButton.addEventListener('click', async () => {
+    const message = userInput.value.trim();
+    if (message) {
+      addMessage('user', message);
+      userInput.value = '';
+      addTyping();
+
+      try {
+        const response = await fetch('/webchat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: userName, email: userEmail, message })
+        });
+
+        const data = await response.json();
+        removeTyping();
+        addMessage('assistant', data.reply);
+      } catch (error) {
+        removeTyping();
+        addMessage('assistant', 'Lo siento, algo salió mal 😢. Inténtalo más tarde.');
+      }
+    }
+  });
 });
-
-function appendMessage(sender, text) {
-  const messageDiv = document.createElement('div');
-  messageDiv.className = `message ${sender}`;
-  messageDiv.innerText = text;
-  chatbox.appendChild(messageDiv);
-  chatbox.scrollTop = chatbox.scrollHeight;
-}
-
-function sendLink(type) {
-  let url = '';
-  let flirt = '';
-
-  switch (type) {
-    case 'vip':
-      url = 'https://tulink.com/vip'; // 🔁 Cambia por tu link real
-      flirt = 'Aquí tienes mi 🔥 contenido VIP, solo para mis amores más intensos... 💋';
-      break;
-    case 'canal':
-      url = 'https://t.me/scarlettchannel'; // 🔁 Tu canal real
-      flirt = 'Mi canal está lleno de sorpresas... ¿Te atreves a entrar? 😈';
-      break;
-    case 'redes':
-      url = 'https://linktr.ee/scarlett'; // 🔁 Tus redes o Linktree
-      flirt = 'Estas son mis redes, bebé... sígueme y juguemos más 💕';
-      break;
-    case 'paypal':
-      url = 'https://paypal.me/tulink'; // 🔁 Tu PayPal
-      flirt = 'Si quieres consentirme... aquí puedes hacerlo 💸💋';
-      break;
-  }
-
-  window.open(url, '_blank');
-  appendMessage('bot', flirt);
-}
