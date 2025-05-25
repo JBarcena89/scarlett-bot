@@ -1,40 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Scarlett 💋 Tu Novia Virtual</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8">
+  <title>Scarlett 💋</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
+  <div class="chat-container">
     <h1>Scarlett 💋</h1>
-    <p class="subtitle">Tu novia virtual 24/7 — sensual, coqueta y solo para ti</p>
-
-    <form id="login-form">
-      <input type="text" id="name" placeholder="Tu nombre" required />
-      <input type="email" id="email" placeholder="Tu correo" required />
-      <button type="submit">Entrar al chat</button>
+    <div id="chat-box"></div>
+    <form id="chat-form">
+      <input type="text" id="name" placeholder="Tu nombre" required>
+      <input type="email" id="email" placeholder="Tu correo" required>
+      <textarea id="message" placeholder="Escribe tu mensaje..." required></textarea>
+      <button type="submit">Enviar</button>
     </form>
-
-    <div id="chat-section" style="display: none;">
-      <div id="chatbox"></div>
-      <div id="typing" class="typing-indicator" style="display:none;">Scarlett está escribiendo...</div>
-
-      <form id="chat-form">
-        <input type="text" id="user-input" placeholder="Escríbeme algo rico, amor..." required />
-        <button type="submit">Enviar</button>
-      </form>
-
-      <div class="buttons">
-        <button onclick="sendLink('vip')">💎 Contenido VIP</button>
-        <button onclick="sendLink('canal')">🔥 Mi canal</button>
-        <button onclick="sendLink('redes')">💋 Mis redes</button>
-        <button onclick="sendLink('paypal')">💸 Donar en PayPal</button>
-      </div>
+    <div class="donate">
+      <a href="https://www.paypal.com/donate?hosted_button_id=TU_ID_DE_PAYPAL" target="_blank">
+        ❤️ Donar con PayPal
+      </a>
     </div>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>
