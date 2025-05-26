@@ -15,10 +15,12 @@
       <textarea id="message" placeholder="Escribe tu mensaje..." required></textarea>
       <button type="submit">Enviar</button>
     </form>
-    <div class="donate">
-      <a href="https://www.paypal.com/donate?hosted_button_id=TU_ID_DE_PAYPAL" target="_blank">
-        ❤️ Donar con PayPal
-      </a>
+    
+    <div class="button-group">
+      <a href="https://www.paypal.com/donate?hosted_button_id=TU_ID_DE_PAYPAL" target="_blank">❤️ Donar con PayPal</a>
+      <button onclick="mostrarMensaje('contenido')">📸 Contenido VIP</button>
+      <button onclick="mostrarMensaje('canal')">📣 Canal de Telegram</button>
+      <button onclick="mostrarMensaje('redes')">🌐 Redes Sociales</button>
     </div>
   </div>
   <script src="script.js"></script>
