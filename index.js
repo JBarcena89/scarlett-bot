@@ -19,15 +19,18 @@ const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 
+// === Validación de variables de entorno ===
 if (!DOMAIN || !TOKEN || !OPENAI_API_KEY) {
   console.error('Faltan variables de entorno: DOMAIN, TELEGRAM_BOT_TOKEN, OPENAI_API_KEY');
   process.exit(1);
 }
 
-const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY,
-});
+if (!WHATSAPP_TOKEN || !PHONE_NUMBER_ID || !VERIFY_TOKEN) {
+  console.error('Faltan variables de entorno: WHATSAPP_TOKEN, PHONE_NUMBER_ID o VERIFY_TOKEN');
+  process.exit(1);
+}
 
+const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 const userHistory = {};
 
 // === TELEGRAM BOT ===
@@ -62,12 +65,12 @@ bot.on('message', async (msg) => {
       messages: userHistory[userKey]
     });
 
-    const reply = response.choices[0].message.content;
+    const reply = response.choices?.[0]?.message?.content || 'Lo siento, no pude generar una respuesta sensual esta vez.';
     userHistory[userKey].push({ role: 'assistant', content: reply });
 
     await bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
   } catch (error) {
-    console.error('Error OpenAI (Telegram):', error);
+    console.error('Error OpenAI (Telegram):', error.message);
     bot.sendMessage(chatId, 'Lo siento, ocurrió un error al generar la respuesta.');
   }
 });
@@ -100,12 +103,12 @@ app.post('/chat', async (req, res) => {
       messages: userHistory[userKey]
     });
 
-    const reply = response.choices[0].message.content;
+    const reply = response.choices?.[0]?.message?.content || 'Lo siento, no pude generar una respuesta sensual esta vez.';
     userHistory[userKey].push({ role: 'assistant', content: reply });
 
     res.json({ reply });
   } catch (error) {
-    console.error('Error OpenAI (Web):', error);
+    console.error('Error OpenAI (Web):', error.message);
     res.status(500).json({ error: 'Error al generar respuesta de Scarlett.' });
   }
 });
@@ -153,7 +156,7 @@ app.post('/webhook', async (req, res) => {
           messages: userHistory[userKey]
         });
 
-        const reply = completion.choices[0].message.content;
+        const reply = completion.choices?.[0]?.message?.content || 'Lo siento, no pude generar una respuesta sensual esta vez.';
         userHistory[userKey].push({ role: 'assistant', content: reply });
 
         await axios.post(`https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`, {
