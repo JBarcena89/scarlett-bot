@@ -1,19 +1,31 @@
-document.getElementById('chat-form').addEventListener('submit', async (e) => {
+const chatBox = document.getElementById('chat-box');
+const messageInput = document.getElementById('message');
+
+document.getElementById('chat-form').addEventListener('submit', handleSubmit);
+
+// Habilita Enter para enviar
+messageInput.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+  }
+});
+
+async function handleSubmit(e) {
   e.preventDefault();
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
-  const message = document.getElementById('message').value.trim();
+  const message = messageInput.value.trim();
   if (!name || !email || !message) return;
 
-  const chatBox = document.getElementById('chat-box');
   chatBox.innerHTML += `<p><strong>${name}:</strong> ${message}</p>`;
-  chatBox.innerHTML += `<p id="typing"><em>Scarlett está escribiendo...</em></p>`;
+  showTypingDots();
   chatBox.scrollTop = chatBox.scrollHeight;
 
-  document.getElementById('message').value = '';
+  messageInput.value = '';
 
   try {
-    await new Promise(resolve => setTimeout(resolve, 6000)); // 6 segundos de espera
+    await new Promise(resolve => setTimeout(resolve, 6000)); // 6 segundos
 
     const res = await fetch('/chat', {
       method: 'POST',
@@ -22,7 +34,7 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
     });
     const data = await res.json();
 
-    document.getElementById('typing')?.remove();
+    removeTypingDots();
 
     if (data.reply) {
       chatBox.innerHTML += `<p><strong>Scarlett:</strong> ${data.reply}</p>`;
@@ -31,16 +43,26 @@ document.getElementById('chat-form').addEventListener('submit', async (e) => {
     }
   } catch (err) {
     console.error(err);
-    document.getElementById('typing')?.remove();
+    removeTypingDots();
     chatBox.innerHTML += `<p><strong>Scarlett:</strong> Error de conexión.</p>`;
   }
 
   chatBox.scrollTop = chatBox.scrollHeight;
-});
+}
 
-// Botones personalizados
+function showTypingDots() {
+  const typing = document.createElement('p');
+  typing.id = 'typing';
+  typing.innerHTML = `<strong>Scarlett:</strong> <span class="dotting"></span>`;
+  chatBox.appendChild(typing);
+}
+
+function removeTypingDots() {
+  document.getElementById('typing')?.remove();
+}
+
+// Botones rápidos
 function mostrarMensaje(tipo) {
-  const chatBox = document.getElementById('chat-box');
   let mensaje = '';
   if (tipo === 'contenido') {
     mensaje = 'Aquí tienes mi contenido VIP 😘 👉 <a href="https://mi-contenido-vip.com" target="_blank">https://mi-contenido-vip.com</a>';
