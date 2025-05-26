@@ -3,7 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const TelegramBot = require('node-telegram-bot-api');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai');
 
 const app = express();
 app.use(bodyParser.json());
@@ -19,8 +19,9 @@ if (!DOMAIN || !TOKEN || !OPENAI_API_KEY) {
   process.exit(1);
 }
 
-const configuration = new Configuration({ apiKey: OPENAI_API_KEY });
-const openai = new OpenAIApi(configuration);
+const openai = new OpenAI({
+  apiKey: OPENAI_API_KEY,
+});
 
 const userHistory = {};
 
@@ -47,11 +48,11 @@ bot.on('message', async (msg) => {
   userHistory[userKey].push({ role: 'user', content: text });
 
   try {
-    const response = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: userHistory[userKey]
     });
-    const reply = response.data.choices[0].message.content;
+    const reply = response.choices[0].message.content;
     userHistory[userKey].push({ role: 'assistant', content: reply });
     bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
   } catch (error) {
@@ -82,11 +83,11 @@ app.post('/chat', async (req, res) => {
   userHistory[userKey].push({ role: 'user', content: message });
 
   try {
-    const response = await openai.createChatCompletion({
+    const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: userHistory[userKey]
     });
-    const reply = response.data.choices[0].message.content;
+    const reply = response.choices[0].message.content;
     userHistory[userKey].push({ role: 'assistant', content: reply });
     res.json({ reply });
   } catch (error) {
