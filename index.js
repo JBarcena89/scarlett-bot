@@ -48,13 +48,19 @@ bot.on('message', async (msg) => {
   userHistory[userKey].push({ role: 'user', content: text });
 
   try {
+    // 👇 Scarlett muestra "escribiendo..." en Telegram
+    await bot.sendChatAction(chatId, 'typing');
+    await new Promise(resolve => setTimeout(resolve, 6000)); // Espera simulada de 6s
+
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: userHistory[userKey]
     });
+
     const reply = response.choices[0].message.content;
     userHistory[userKey].push({ role: 'assistant', content: reply });
-    bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
+
+    await bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
   } catch (error) {
     console.error('Error OpenAI (Telegram):', error);
     bot.sendMessage(chatId, 'Lo siento, ocurrió un error al generar la respuesta.');
@@ -87,8 +93,10 @@ app.post('/chat', async (req, res) => {
       model: "gpt-3.5-turbo",
       messages: userHistory[userKey]
     });
+
     const reply = response.choices[0].message.content;
     userHistory[userKey].push({ role: 'assistant', content: reply });
+
     res.json({ reply });
   } catch (error) {
     console.error('Error OpenAI (Web):', error);
