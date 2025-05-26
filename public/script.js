@@ -3,7 +3,7 @@ const messageInput = document.getElementById('message');
 
 document.getElementById('chat-form').addEventListener('submit', handleSubmit);
 
-// Habilita Enter para enviar
+// Enter para enviar
 messageInput.addEventListener('keydown', function (e) {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -18,47 +18,61 @@ async function handleSubmit(e) {
   const message = messageInput.value.trim();
   if (!name || !email || !message) return;
 
-  chatBox.innerHTML += `<p><strong>${name}:</strong> ${message}</p>`;
+  agregarMensaje(message, 'user'); // Mostrar mensaje del usuario
   showTypingDots();
-  chatBox.scrollTop = chatBox.scrollHeight;
 
   messageInput.value = '';
+  chatBox.scrollTop = chatBox.scrollHeight;
 
   try {
-    await new Promise(resolve => setTimeout(resolve, 6000)); // 6 segundos
+    await new Promise(resolve => setTimeout(resolve, 4000 + Math.random() * 2000)); // 4-6 seg
 
     const res = await fetch('/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, message })
     });
-    const data = await res.json();
 
+    const data = await res.json();
     removeTypingDots();
 
     if (data.reply) {
-      chatBox.innerHTML += `<p><strong>Scarlett:</strong> ${data.reply}</p>`;
+      agregarMensaje(data.reply, 'bot');
     } else {
-      chatBox.innerHTML += `<p><strong>Scarlett:</strong> Lo siento, ocurrió un error.</p>`;
+      agregarMensaje('Lo siento, ocurrió un error.', 'bot');
     }
   } catch (err) {
     console.error(err);
     removeTypingDots();
-    chatBox.innerHTML += `<p><strong>Scarlett:</strong> Error de conexión.</p>`;
+    agregarMensaje('Error de conexión.', 'bot');
   }
 
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function showTypingDots() {
-  const typing = document.createElement('p');
-  typing.id = 'typing';
-  typing.innerHTML = `<strong>Scarlett:</strong> <span class="dotting"></span>`;
-  chatBox.appendChild(typing);
+// Mostrar mensaje en burbuja
+function agregarMensaje(texto, tipo = 'bot') {
+  const mensaje = document.createElement('div');
+  mensaje.className = `bubble ${tipo}`;
+  mensaje.innerHTML = texto;
+  chatBox.appendChild(mensaje);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+// Mostrar "escribiendo..."
+function showTypingDots() {
+  const typing = document.createElement('div');
+  typing.id = 'typing';
+  typing.className = 'bubble bot';
+  typing.innerHTML = '<span class="dotting"></span>';
+  chatBox.appendChild(typing);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Quitar "escribiendo..."
 function removeTypingDots() {
-  document.getElementById('typing')?.remove();
+  const typing = document.getElementById('typing');
+  if (typing) typing.remove();
 }
 
 // Botones rápidos
@@ -71,6 +85,6 @@ function mostrarMensaje(tipo) {
   } else if (tipo === 'redes') {
     mensaje = 'Sígueme en todas mis redes 🌐 👉 <a href="https://linktr.ee/scarlettbot" target="_blank">https://linktr.ee/scarlettbot</a>';
   }
-  chatBox.innerHTML += `<p><strong>Scarlett:</strong> ${mensaje}</p>`;
-  chatBox.scrollTop = chatBox.scrollHeight;
+
+  agregarMensaje(mensaje, 'bot');
 }
