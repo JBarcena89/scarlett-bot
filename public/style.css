@@ -67,3 +67,30 @@ form button:hover {
   color: #d81b60;
   font-weight: bold;
 }
+
+.button-group {
+  text-align: center;
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.button-group a,
+.button-group button {
+  background: #d81b60;
+  color: white;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.button-group button:hover,
+.button-group a:hover {
+  background: #c2185b;
+}
