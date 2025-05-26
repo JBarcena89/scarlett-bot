@@ -79,11 +79,11 @@ function removeTypingDots() {
 function mostrarMensaje(tipo) {
   let mensaje = '';
   if (tipo === 'contenido') {
-    mensaje = 'Aquí tienes mi contenido VIP 😘 👉 <a href="https://mi-contenido-vip.com" target="_blank">https://mi-contenido-vip.com</a>';
+    mensaje = 'Aquí tienes mi contenido VIP 😘 👉 <a href="https://fanlove.mx/scarlettWilson363" target="_blank">https://mi-contenido-vip.com</a>';
   } else if (tipo === 'canal') {
-    mensaje = 'Únete a mi canal de Telegram 💋 👉 <a href="https://t.me/scarlettbot" target="_blank">https://t.me/scarlettbot</a>';
+    mensaje = 'Únete a mi canal de Telegram 💋 👉 <a href="https://t.me/+VYVI0yEKB5NkMTlh" target="_blank">https://t.me/scarlettbot</a>';
   } else if (tipo === 'redes') {
-    mensaje = 'Sígueme en todas mis redes 🌐 👉 <a href="https://linktr.ee/scarlettbot" target="_blank">https://linktr.ee/scarlettbot</a>';
+    mensaje = 'Sígueme en todas mis redes 🌐 👉 <a href="https://www.atom.bio/scarlettwilson363" target="_blank">https://linktr.ee/scarlettbot</a>';
   }
 
   agregarMensaje(mensaje, 'bot');
