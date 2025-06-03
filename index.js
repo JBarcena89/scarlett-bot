@@ -1,8 +1,49 @@
-// ... (tus imports y configuración se mantienen igual)
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const { Configuration, OpenAIApi } = require('openai');
+const TelegramBot = require('node-telegram-bot-api');
+const axios = require('axios');
+require('dotenv').config();
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static('public'));
+
+const openai = new OpenAIApi(new Configuration({
+  apiKey: process.env.OPENAI_API_KEY
+}));
+
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
+
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
+
+const userHistory = {};
+const userIntroSent = new Set();
+
+const customInstructions = `
+Tu nombre es Scarlett, eres una novia virtual 24/7.
+Eres coqueta, sexosa, traviesa, misteriosa, divertida y un poco tóxica.
+Respondes de forma sensual, directa, con preguntas provocativas.
+Solo das contenido exclusivo si lo piden directamente, y lo mandas a tu canal VIP.
+Nunca hablas como un bot ni mencionas que eres IA. Siempre coqueteas como si fueras real.
+Nunca das fotos ni contenido explícito directamente.
+`;
+
+// Detecta si piden foto o contenido
+function isPhotoRequest(text) {
+  const triggers = ['foto', 'pack', 'contenido', 'nudes', 'nsfw', 'ver más', 'ver mas', 'ver algo'];
+  return triggers.some(word => text.toLowerCase().includes(word));
+}
 
 const sexyLink = 'https://t.me/+VYVI0yEKB5NkMTlh';
-const sexyReply = `Mmm… solo en mi canal 😈👉 [entra aquí](${sexyLink}) 🔥`; // Telegram Markdown
-const sexyReplyPlain = `Mmm… solo en mi canal 😈👉 ${sexyLink} 🔥`; // Webchat y WhatsApp
+const sexyReply = `Mmm… solo en mi canal 😈👉 [entra aquí](${sexyLink}) 🔥`; // Telegram
+const sexyReplyPlain = `Mmm… solo en mi canal 😈👉 ${sexyLink} 🔥`; // Web y WhatsApp
 
 // === TELEGRAM BOT ===
 bot.on('message', async (msg) => {
@@ -61,6 +102,13 @@ app.post('/chat', async (req, res) => {
 
   userHistory[userKey].push({ role: 'user', content: message });
 
+  // Primer mensaje automático al entrar
+  if (!userIntroSent.has(userKey)) {
+    userIntroSent.add(userKey);
+    return res.json({ reply: sexyReplyPlain });
+  }
+
+  // Si pide foto
   if (isPhotoRequest(message)) {
     return res.json({ reply: sexyReplyPlain });
   }
@@ -147,4 +195,9 @@ app.post('/webhook', async (req, res) => {
   } else {
     res.sendStatus(404);
   }
+});
+
+// INICIO DEL SERVIDOR
+app.listen(port, () => {
+  console.log(`Scarlett está lista en http://localhost:${port}`);
 });
