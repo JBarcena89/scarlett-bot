@@ -18,8 +18,8 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
-const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
