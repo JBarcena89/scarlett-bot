@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai'); // Actualizado para openai@4.x
 const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 require('dotenv').config();
@@ -13,9 +13,10 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-const openai = new OpenAIApi(new Configuration({
+// OpenAI Client (v4)
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
-}));
+});
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
@@ -42,162 +43,51 @@ function isPhotoRequest(text) {
 }
 
 const sexyLink = 'https://t.me/+VYVI0yEKB5NkMTlh';
-const sexyReply = `Mmm… solo en mi canal 😈👉 [entra aquí](${sexyLink}) 🔥`; // Telegram
-const sexyReplyPlain = `Mmm… solo en mi canal 😈👉 ${sexyLink} 🔥`; // Web y WhatsApp
+const sexyReply = `Mmm… solo en mi canal VIP, amor 👉 [entra aquí](${sexyLink}) 😘🔥`;
 
-// === TELEGRAM BOT ===
+// Lógica de mensaje de Telegram
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
-  const text = msg.text || '';
-  const userKey = 't' + chatId;
+  const userInput = msg.text;
 
-  if (!userHistory[userKey]) {
-    userHistory[userKey] = [{
-      role: 'system',
-      content: customInstructions
-    }];
+  // Si es una solicitud de contenido sexy, responde con el link directo
+  if (isPhotoRequest(userInput)) {
+    return bot.sendMessage(chatId, sexyReply, { parse_mode: 'Markdown' });
   }
 
-  userHistory[userKey].push({ role: 'user', content: text });
+  bot.sendChatAction(chatId, 'typing'); // Mostrar "escribiendo..."
 
-  if (isPhotoRequest(text)) {
-    await bot.sendMessage(chatId, sexyReply, { parse_mode: 'Markdown' });
-    return;
+  if (!userHistory[chatId]) {
+    userHistory[chatId] = [];
   }
+
+  if (!userIntroSent.has(chatId)) {
+    bot.sendMessage(chatId, "Hola amor 😘 Soy Scarlett, tu novia virtual... ¿en qué estás pensando? 😈");
+    userIntroSent.add(chatId);
+  }
+
+  userHistory[chatId].push({ role: 'user', content: userInput });
 
   try {
-    await bot.sendChatAction(chatId, 'typing');
-    await new Promise(resolve => setTimeout(resolve, 6000));
-
-    const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: userHistory[userKey]
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [
+        { role: 'system', content: customInstructions },
+        ...userHistory[chatId]
+      ],
+      temperature: 0.9
     });
 
-    const reply = response.choices?.[0]?.message?.content || 'Lo siento, no pude generar una respuesta sensual esta vez.';
-    userHistory[userKey].push({ role: 'assistant', content: reply });
+    const response = completion.choices[0].message.content;
+    userHistory[chatId].push({ role: 'assistant', content: response });
 
-    await bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
+    bot.sendMessage(chatId, response);
   } catch (error) {
-    console.error('Error OpenAI (Telegram):', error.message);
-    bot.sendMessage(chatId, 'Ups… algo falló 😢');
+    console.error('Error con OpenAI:', error.message);
+    bot.sendMessage(chatId, "Uy amor... algo falló. ¿Me repites eso?");
   }
 });
 
-// === WEB CHAT ===
-app.post('/chat', async (req, res) => {
-  const { name, email, message } = req.body;
-  if (!name || !email || !message) {
-    return res.status(400).json({ error: 'Faltan name, email o message.' });
-  }
-
-  const userKey = email;
-
-  if (!userHistory[userKey]) {
-    userHistory[userKey] = [{
-      role: 'system',
-      content: customInstructions
-    }];
-  }
-
-  userHistory[userKey].push({ role: 'user', content: message });
-
-  // Primer mensaje automático al entrar
-  if (!userIntroSent.has(userKey)) {
-    userIntroSent.add(userKey);
-    return res.json({ reply: sexyReplyPlain });
-  }
-
-  // Si pide foto
-  if (isPhotoRequest(message)) {
-    return res.json({ reply: sexyReplyPlain });
-  }
-
-  try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: userHistory[userKey]
-    });
-
-    const reply = response.choices?.[0]?.message?.content || 'Ups… no supe qué decir 😳';
-    userHistory[userKey].push({ role: 'assistant', content: reply });
-
-    res.json({ reply });
-  } catch (error) {
-    console.error('Error OpenAI (Web):', error.message);
-    res.status(500).json({ error: 'Error al generar respuesta de Scarlett.' });
-  }
-});
-
-// === WHATSAPP ===
-app.post('/webhook', async (req, res) => {
-  const body = req.body;
-
-  if (body.object) {
-    const entry = body.entry?.[0];
-    const changes = entry?.changes?.[0];
-    const message = changes?.value?.messages?.[0];
-
-    if (message && message.text && message.from) {
-      const userKey = 'w' + message.from;
-      const userMsg = message.text.body;
-
-      if (!userHistory[userKey]) {
-        userHistory[userKey] = [{
-          role: 'system',
-          content: customInstructions
-        }];
-      }
-
-      userHistory[userKey].push({ role: 'user', content: userMsg });
-
-      if (isPhotoRequest(userMsg)) {
-        await axios.post(`https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`, {
-          messaging_product: 'whatsapp',
-          to: message.from,
-          text: { body: sexyReplyPlain }
-        }, {
-          headers: {
-            Authorization: `Bearer ${WHATSAPP_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        return res.sendStatus(200);
-      }
-
-      try {
-        await new Promise(resolve => setTimeout(resolve, 6000));
-
-        const completion = await openai.chat.completions.create({
-          model: 'gpt-3.5-turbo',
-          messages: userHistory[userKey]
-        });
-
-        const reply = completion.choices?.[0]?.message?.content || 'Ups… no supe qué decir 😳';
-        userHistory[userKey].push({ role: 'assistant', content: reply });
-
-        await axios.post(`https://graph.facebook.com/v19.0/${PHONE_NUMBER_ID}/messages`, {
-          messaging_product: 'whatsapp',
-          to: message.from,
-          text: { body: reply }
-        }, {
-          headers: {
-            Authorization: `Bearer ${WHATSAPP_TOKEN}`,
-            'Content-Type': 'application/json'
-          }
-        });
-      } catch (err) {
-        console.error('Error enviando mensaje de Scarlett por WhatsApp:', err.message);
-      }
-    }
-
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(404);
-  }
-});
-
-// INICIO DEL SERVIDOR
 app.listen(port, () => {
-  console.log(`Scarlett está lista en http://localhost:${port}`);
+  console.log(`Servidor de Scarlett activo en el puerto ${port}`);
 });
