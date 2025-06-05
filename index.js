@@ -171,6 +171,36 @@ async function sendMessageToMessenger(senderPsid, message) {
   }
 }
 
+// 💬 Webchat: responde al frontend
+app.post('/chat', async (req, res) => {
+  const { name, email, message } = req.body;
+  const userId = email || name;
+
+  if (!message) {
+    return res.status(400).json({ reply: 'No hay mensaje 😢' });
+  }
+
+  try {
+    let reply = '';
+    if (!userIntroSent.has(userId)) {
+      reply += `Hola bebé 😘, soy Scarlett 💋. ¿En qué travesura estás pensando hoy?\n\n`;
+      userIntroSent.add(userId);
+    }
+
+    if (isPhotoRequest(message)) {
+      reply += `Mmm... quieres ver más 😏. Pide lo bueno por aquí 👉 ${sexyLink}`;
+    } else {
+      const aiReply = await generateScarlettReply(userId, message);
+      reply += aiReply;
+    }
+
+    res.json({ reply });
+  } catch (err) {
+    console.error('❌ Error en /chat:', err.message);
+    res.status(500).json({ reply: 'Ups... hubo un problema, bebé 💔' });
+  }
+});
+
 // 🚀 Inicia el servidor
 app.listen(port, () => {
   console.log(`🚀 Servidor escuchando en http://localhost:${port}`);
