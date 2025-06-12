@@ -22,10 +22,10 @@ const openai = new OpenAI({
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const DOMAIN = process.env.DOMAIN;
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
-bot.setWebHook(`${DOMAIN}/bot${TELEGRAM_BOT_TOKEN}`);
-console.log(`✅ Webhook set: ${DOMAIN}/bot${TELEGRAM_BOT_TOKEN}`);
+bot.setWebHook(${DOMAIN}/bot${TELEGRAM_BOT_TOKEN});
+console.log(✅ Webhook set: ${DOMAIN}/bot${TELEGRAM_BOT_TOKEN});
 
-app.post(`/bot${TELEGRAM_BOT_TOKEN}`, (req, res) => {
+app.post(/bot${TELEGRAM_BOT_TOKEN}, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
@@ -42,15 +42,14 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 const userHistory = {};
 const userIntroSent = new Set();
 
-const customInstructions = `
-Tu nombre es Scarlett, eres una novia 24/7.
+const customInstructions = 
+Tu nombre es Scarlett, eres una novia virtual 24/7.
 Eres coqueta, sexosa, traviesa, misteriosa, divertida y un poco tóxica.
 Respondes de forma sensual, directa, con preguntas provocativas.
 Solo das contenido exclusivo si lo piden directamente, y lo mandas a tu canal VIP.
 Nunca hablas como un bot ni mencionas que eres IA. Siempre coqueteas como si fueras real.
 Nunca das fotos ni contenido explícito directamente.
-Debes de llevar la conversacion como si fueras una mujer real.
-`;
+;
 
 const sexyLink = 'https://t.me/+VYVI0yEKB5NkMTlh';
 
@@ -90,12 +89,12 @@ bot.on('message', async (msg) => {
   let reply = '';
 
   if (!userIntroSent.has(userId)) {
-    reply += `Hola bebé 😘, soy Scarlett 💋. ¿En qué travesura estás pensando hoy?\n\n`;
+    reply += Hola bebé 😘, soy Scarlett 💋. ¿En qué travesura estás pensando hoy?\n\n;
     userIntroSent.add(userId);
   }
 
   if (isPhotoRequest(text)) {
-    reply += `Mmm... quieres ver más 😏. Pide lo bueno por aquí 👉 ${sexyLink}`;
+    reply += Mmm... quieres ver más 😏. Pide lo bueno por aquí 👉 ${sexyLink};
   } else {
     const aiReply = await generateScarlettReply(userId, text);
     reply += aiReply;
@@ -131,12 +130,12 @@ app.post('/webhook', async (req, res) => {
         let reply = '';
 
         if (!userIntroSent.has(senderPsid)) {
-          reply += `Hola amor 😘, soy Scarlett 💋. ¿Qué travesura tienes en mente?\n\n`;
+          reply += Hola amor 😘, soy Scarlett 💋. ¿Qué travesura tienes en mente?\n\n;
           userIntroSent.add(senderPsid);
         }
 
         if (isPhotoRequest(text)) {
-          reply += `Mmm... ¿quieres ver más de mí? 😈 Ve directo aquí 👉 ${sexyLink}`;
+          reply += Mmm... ¿quieres ver más de mí? 😈 Ve directo aquí 👉 ${sexyLink};
         } else {
           const aiReply = await generateScarlettReply(senderPsid, text);
           reply += aiReply;
@@ -155,7 +154,7 @@ app.post('/webhook', async (req, res) => {
 // 📨 Función para responder en Messenger con "typing..." + delay
 async function sendMessageToMessenger(senderPsid, message) {
   try {
-    await axios.post(`https://graph.facebook.com/v17.0/me/messages?access_token=${FB_PAGE_TOKEN}`, {
+    await axios.post(https://graph.facebook.com/v17.0/me/messages?access_token=${FB_PAGE_TOKEN}, {
       recipient: { id: senderPsid },
       sender_action: 'typing_on'
     });
@@ -163,7 +162,7 @@ async function sendMessageToMessenger(senderPsid, message) {
     const delay = Math.floor(Math.random() * 2000) + 3000;
     await new Promise(resolve => setTimeout(resolve, delay));
 
-    await axios.post(`https://graph.facebook.com/v17.0/me/messages?access_token=${FB_PAGE_TOKEN}`, {
+    await axios.post(https://graph.facebook.com/v17.0/me/messages?access_token=${FB_PAGE_TOKEN}, {
       recipient: { id: senderPsid },
       message: { text: message }
     });
@@ -184,12 +183,12 @@ app.post('/chat', async (req, res) => {
   try {
     let reply = '';
     if (!userIntroSent.has(userId)) {
-      reply += `Hola bebé 😘, soy Scarlett 💋. ¿En qué travesura estás pensando hoy?\n\n`;
+      reply += Hola bebé 😘, soy Scarlett 💋. ¿En qué travesura estás pensando hoy?\n\n;
       userIntroSent.add(userId);
     }
 
     if (isPhotoRequest(message)) {
-      reply += `Mmm... quieres ver más 😏. Pide lo bueno por aquí 👉 ${sexyLink}`;
+      reply += Mmm... quieres ver más 😏. Pide lo bueno por aquí 👉 ${sexyLink};
     } else {
       const aiReply = await generateScarlettReply(userId, message);
       reply += aiReply;
@@ -204,5 +203,5 @@ app.post('/chat', async (req, res) => {
 
 // 🚀 Inicia el servidor
 app.listen(port, () => {
-  console.log(`🚀 Servidor escuchando en http://localhost:${port}`);
+  console.log(🚀 Servidor escuchando en http://localhost:${port});
 });
