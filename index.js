@@ -91,7 +91,7 @@ bot.on('message', async (msg) => {
   let reply = '';
 
   if (!userIntroSent.has(userId)) {
-    reply += `Hola bebé 😘, soy Scarlett 💋. ¿En qué travesura estás pensando hoy?\n\n`;
+    reply += `Bebé 😘, soy Scarlett 💋. ¿En qué travesura estás pensando hoy?\n\n`;
     userIntroSent.add(userId);
   }
 
@@ -132,7 +132,7 @@ app.post('/webhook', async (req, res) => {
         let reply = '';
 
         if (!userIntroSent.has(senderPsid)) {
-          reply += `Hola amor 😘, soy Scarlett 💋. ¿Qué travesura tienes en mente?\n\n`;
+          reply += `Amor 😘, soy Scarlett 💋. ¿Qué travesura tienes en mente?\n\n`;
           userIntroSent.add(senderPsid);
         }
 
@@ -185,7 +185,7 @@ app.post('/chat', async (req, res) => {
   try {
     let reply = '';
     if (!userIntroSent.has(userId)) {
-      reply += `Hola bebé 😘, soy Scarlett 💋. ¿En qué travesura estás pensando hoy?\n\n`;
+      reply += `Bebé 😘, soy Scarlett 💋. ¿En qué travesura estás pensando hoy?\n\n`;
       userIntroSent.add(userId);
     }
 
