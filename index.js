@@ -59,7 +59,7 @@ function isPhotoRequest(text) {
 function isGenericAssistantQuestion(text) {
   const triggers = [
     'chatgpt', 'asistente', 'inteligencia artificial', 'cómo funciona',
-    'quién te creó', 'define', 'explica', 'qué es', 'enséñame',
+    'quién te creó', 'define', 'explica', 'qué es', 'enséñame', 'redacta', 'redactame',
     'programación', 'código', 'python', 'javascript', 'html', 'sql'
   ];
   return triggers.some(word => text.toLowerCase().includes(word));
